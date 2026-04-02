@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Rocket, Heart, Trophy, X, Play } from 'lucide-react';
 import { RAW_DATA } from '../data';
@@ -108,7 +108,7 @@ export default function GameView() {
     }
   }, [gameState, score, highScore]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toLowerCase().trim();
     setInput(val);
 
@@ -126,24 +126,24 @@ export default function GameView() {
 
   if (gameState === 'menu') {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-5">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-4 pb-4">
         <div className="text-center mb-4">
-          <div className="w-24 h-24 bg-zinc-900 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-transparent opacity-50"></div>
-            <Rocket className="w-12 h-12 text-indigo-400 relative z-10" />
+          <div className="w-24 h-24 bg-[#1A1D24] rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-50"></div>
+            <Rocket className="w-12 h-12 text-cyan-400 relative z-10" />
           </div>
           <h2 className="text-3xl font-black text-zinc-100 tracking-tight">Kana Drop</h2>
           <p className="text-sm text-zinc-500 mt-2">Type the romaji before they hit the ground!</p>
         </div>
         
-        <div className="bg-zinc-900 p-5 rounded-[28px] shadow-sm mb-2">
-          <label className="block text-[11px] text-zinc-500 uppercase font-bold tracking-wider mb-4 text-center">Select Difficulty</label>
-          <div className="flex gap-2">
+        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
+          <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-4 text-center">Select Difficulty</label>
+          <div className="flex gap-3">
             {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
               <button 
                 key={d} 
                 onClick={() => { playClick(); setDifficulty(d); }}
-                className={`flex-1 py-3 rounded-2xl text-sm font-bold transition-all capitalize active:scale-95 ${difficulty === d ? 'bg-indigo-500 text-white shadow-md' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'}`}
+                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${difficulty === d ? 'bg-cyan-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
               >
                 {d}
               </button>
@@ -157,7 +157,7 @@ export default function GameView() {
           </div>
         </div>
 
-        <button onClick={startGame} className="w-full py-4 bg-indigo-500 text-white font-bold rounded-full shadow-md shadow-indigo-500/20 text-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+        <button onClick={startGame} className="w-full py-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-bold rounded-full shadow-md shadow-cyan-500/20 text-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
           Start Game <Play className="w-5 h-5" fill="currentColor" />
         </button>
       </motion.div>
@@ -167,27 +167,27 @@ export default function GameView() {
   if (gameState === 'gameover') {
     const isNewRecord = score > 0 && score >= highScore;
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center px-5">
-        <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-sm">
-          <X className="w-12 h-12 text-pink-500" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center px-4 max-w-sm mx-auto">
+        <div className="w-24 h-24 bg-[#1A1D24] rounded-full flex items-center justify-center mb-6 shadow-sm">
+          <X className="w-12 h-12 text-purple-500" />
         </div>
         <h2 className="text-3xl font-black text-zinc-100 mb-2">Game Over!</h2>
         <p className="text-zinc-500 text-sm mb-8">The kana dropped too fast.</p>
         
-        <div className="bg-zinc-900 p-6 rounded-[32px] w-full max-w-xs mb-10 shadow-sm relative overflow-hidden">
+        <div className="bg-[#1A1D24] p-6 rounded-[28px] w-full max-w-[300px] mb-10 shadow-sm relative overflow-hidden">
           {isNewRecord && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>}
           <div className="flex flex-col items-center justify-center">
-            <p className="text-[11px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Final Score</p>
-            <p className="text-5xl font-black text-indigo-400">{score}</p>
+            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider mb-2">Final Score</p>
+            <p className="text-5xl font-black text-cyan-400">{score}</p>
           </div>
           {isNewRecord && <p className="text-xs font-bold text-amber-500 mt-5 flex items-center justify-center gap-1.5 bg-amber-500/10 py-2 rounded-xl"><Trophy className="w-4 h-4" /> New High Score!</p>}
         </div>
 
-        <div className="flex flex-col gap-3 w-full max-w-xs">
-          <button onClick={startGame} className="w-full py-4 bg-indigo-500 text-white rounded-full font-bold text-base hover:bg-indigo-400 flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shadow-indigo-500/20">
+        <div className="flex flex-col gap-3 w-full max-w-[300px]">
+          <button onClick={startGame} className="w-full py-4 bg-cyan-500 text-white rounded-full font-bold text-base hover:bg-cyan-400 flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md shadow-cyan-500/20">
             Play Again
           </button>
-          <button onClick={() => setGameState('menu')} className="w-full py-4 bg-zinc-800 text-zinc-100 rounded-full font-bold text-base hover:bg-zinc-700 flex items-center justify-center gap-2 active:scale-95 transition-all">
+          <button onClick={() => setGameState('menu')} className="w-full py-4 bg-[#222630] text-zinc-100 rounded-full font-bold text-base hover:bg-[#2A2E38] flex items-center justify-center gap-2 active:scale-95 transition-all">
             Back to Menu
           </button>
         </div>
@@ -196,15 +196,15 @@ export default function GameView() {
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-[#0f0f11] flex flex-col" onClick={() => inputRef.current?.focus()}>
+    <div className="relative w-full h-full overflow-hidden bg-[#11131A] flex flex-col" onClick={() => inputRef.current?.focus()}>
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-5 flex justify-between items-center z-10 bg-gradient-to-b from-[#0f0f11] to-transparent">
+      <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-[#11131A] to-transparent">
         <div className="flex gap-1">
           {[...Array(3)].map((_, i) => (
-            <Heart key={i} className={`w-6 h-6 ${i < lives ? 'text-pink-500 fill-pink-500' : 'text-zinc-800'}`} />
+            <Heart key={i} className={`w-5 h-5 ${i < lives ? 'text-purple-500 fill-purple-500' : 'text-[#222630]'}`} />
           ))}
         </div>
-        <div className="text-2xl font-black text-indigo-400 font-mono">{score}</div>
+        <div className="text-xl font-black text-cyan-400 font-mono">{score}</div>
       </div>
 
       {/* Falling Items */}
@@ -216,7 +216,7 @@ export default function GameView() {
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.5 }}
-              className="absolute text-5xl font-black text-zinc-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] font-jp"
+              className="absolute text-4xl font-black text-zinc-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] font-jp"
               style={{ 
                 left: `${item.x}%`, 
                 top: `${item.y}%`, 
@@ -230,13 +230,13 @@ export default function GameView() {
       </div>
 
       {/* Input Area */}
-      <div className="absolute bottom-6 left-5 right-5 z-10">
+      <div className="absolute bottom-4 left-4 right-4 z-10">
         <input
           ref={inputRef}
           type="text"
           value={input}
           onChange={handleInputChange}
-          className="w-full bg-zinc-900/90 backdrop-blur-md border-2 border-zinc-800 rounded-full py-4 px-6 text-center text-2xl font-bold text-zinc-100 focus:border-indigo-500 focus:outline-none shadow-xl transition-colors"
+          className="w-full bg-[#1A1D24]/90 backdrop-blur-md border border-white/10 rounded-full py-3 px-5 text-center text-xl font-bold text-zinc-100 focus:border-cyan-500 focus:outline-none shadow-xl transition-colors"
           placeholder="Type here..."
           autoFocus
           autoComplete="off"

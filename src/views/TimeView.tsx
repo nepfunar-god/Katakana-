@@ -138,29 +138,29 @@ export default function TimeView() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col w-full max-w-md mx-auto px-5">
-      <div className="bg-zinc-900 p-5 rounded-[28px] mb-6 shadow-sm">
-        <div className="flex justify-between items-end mb-3 font-bold">
-          <span className="text-indigo-400 text-[11px] tracking-widest uppercase">Level {level}</span>
-          <span className="text-zinc-500 text-[11px] uppercase tracking-wider">{xp} / 100 XP</span>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col w-full max-w-sm mx-auto px-4 h-full pt-4 pb-4">
+      <div className="bg-[#1A1D24] p-4 rounded-[20px] shadow-sm mb-4">
+        <div className="flex justify-between items-end mb-2 font-bold">
+          <span className="text-cyan-400 text-xs tracking-widest uppercase">Level {level}</span>
+          <span className="text-zinc-500 text-xs uppercase tracking-wider">{xp} / 100 XP</span>
         </div>
-        <div className="w-full bg-zinc-800 rounded-full overflow-hidden h-2.5">
-          <div className="h-full bg-indigo-500 transition-all duration-500 rounded-full" style={{ width: `${xp}%` }}></div>
+        <div className="w-full bg-[#222630] rounded-full overflow-hidden h-2">
+          <div className="h-full bg-cyan-500 transition-all duration-500 rounded-full" style={{ width: `${xp}%` }}></div>
         </div>
       </div>
 
-      <div className="flex bg-zinc-900 p-1.5 rounded-[20px] mb-4 shadow-sm">
-        <button onClick={() => { playClick(); setMode('quiz'); }} className={`flex-1 text-center py-2.5 rounded-2xl text-sm font-bold transition-all ${mode === 'quiz' ? 'text-zinc-100 bg-zinc-800 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Quiz Mode</button>
-        <button onClick={() => { playClick(); setMode('type'); }} className={`flex-1 text-center py-2.5 rounded-2xl text-sm font-bold transition-all ${mode === 'type' ? 'text-zinc-100 bg-zinc-800 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Typing Mode</button>
+      <div className="flex bg-[#1A1D24] p-1.5 rounded-[16px] mb-3 shadow-sm">
+        <button onClick={() => { playClick(); setMode('quiz'); }} className={`flex-1 text-center py-2 rounded-[12px] text-sm font-bold transition-all ${mode === 'quiz' ? 'text-zinc-100 bg-[#222630] shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Quiz Mode</button>
+        <button onClick={() => { playClick(); setMode('type'); }} className={`flex-1 text-center py-2 rounded-[12px] text-sm font-bold transition-all ${mode === 'type' ? 'text-zinc-100 bg-[#222630] shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Typing Mode</button>
       </div>
 
       {mode === 'quiz' && (
-        <div className="flex bg-zinc-900 p-1.5 rounded-[20px] mb-8 shadow-sm">
+        <div className="flex bg-[#1A1D24] p-1.5 rounded-[16px] mb-5 shadow-sm">
           {(['random', 'romaji', 'hiragana', 'kanji'] as const).map(fmt => (
             <button
               key={fmt}
               onClick={() => { playClick(); setScriptFormat(fmt); generateQuestion(fmt); }}
-              className={`flex-1 text-center py-2 rounded-2xl text-[11px] font-bold transition-all capitalize ${scriptFormat === fmt ? 'text-zinc-100 bg-zinc-800 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex-1 text-center py-2 rounded-[12px] text-xs font-bold transition-all capitalize ${scriptFormat === fmt ? 'text-zinc-100 bg-[#222630] shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               {fmt}
             </button>
@@ -169,21 +169,23 @@ export default function TimeView() {
       )}
 
       {question && (
-        <div className="text-center mb-10 relative px-4">
-          <div className="text-[80px] font-black text-indigo-400 drop-shadow-sm tracking-tighter tabular-nums leading-none">{question.display}</div>
-          <button onClick={() => speak(question.audio)} className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full text-zinc-400 flex items-center justify-center hover:bg-zinc-800 hover:text-indigo-400 transition-colors active:scale-95">
-            <Volume2 className="w-6 h-6" />
+        <div className="text-center mb-4 relative px-4">
+          <div className="text-5xl font-black text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)] tracking-tighter tabular-nums leading-none mb-2">{question.display}</div>
+          <button onClick={() => speak(question.audio)} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1A1D24] text-zinc-400 flex items-center justify-center hover:bg-[#222630] hover:text-cyan-400 transition-colors shadow-sm active:scale-95">
+            <Volume2 className="w-4 h-4" />
           </button>
-          <div className="text-zinc-500 text-sm mt-4 font-medium">What time is this in Japanese?</div>
+          <div className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider">What time is this in Japanese?</div>
         </div>
       )}
 
       {mode === 'quiz' ? (
-        <div className="grid grid-cols-2 gap-3 w-full">
+        <div className="grid grid-cols-2 gap-2 w-full mb-4">
           {options.map(opt => {
-            let btnClass = "bg-zinc-900 p-4.5 rounded-[24px] text-zinc-200 font-bold font-jp text-base shadow-sm active:scale-95 transition-all flex items-center justify-center text-center hover:bg-zinc-800";
+            let btnClass = "bg-[#1A1D24] p-3 rounded-[16px] text-zinc-100 font-medium font-jp text-sm shadow-sm active:scale-[0.98] transition-all flex items-center justify-center text-center min-h-[56px] break-words hover:bg-[#222630]";
             if (flashOpt?.opt === opt) {
-              btnClass = flashOpt.isCorrect ? "bg-indigo-500 text-white p-4.5 rounded-[24px] font-bold font-jp text-base shadow-md shadow-indigo-500/20 flex items-center justify-center text-center" : "bg-pink-500 text-white p-4.5 rounded-[24px] font-bold font-jp text-base shadow-md shadow-pink-500/20 flex items-center justify-center text-center";
+              btnClass = flashOpt.isCorrect 
+                ? "bg-cyan-500 text-white p-3 rounded-[16px] font-medium font-jp text-sm shadow-md flex items-center justify-center text-center min-h-[56px] break-words scale-[1.02] transition-all" 
+                : "bg-purple-500 text-white p-3 rounded-[16px] font-medium font-jp text-sm shadow-md flex items-center justify-center text-center min-h-[56px] break-words scale-[0.98] transition-all";
             }
             return (
               <button key={opt} onClick={() => handleAnswer(opt, true)} className={btnClass}>
@@ -193,7 +195,7 @@ export default function TimeView() {
           })}
         </div>
       ) : (
-        <div className="w-full">
+        <div className="w-full mb-4">
           <input 
             type="text" 
             value={typeInput}
@@ -201,54 +203,61 @@ export default function TimeView() {
             onKeyDown={e => e.key === 'Enter' && handleAnswer(typeInput)}
             placeholder="e.g. gozen kuji, 午前九時" 
             autoComplete="off" 
-            className="w-full p-5 text-center bg-zinc-900 rounded-[24px] text-zinc-100 outline-none focus:ring-2 focus:ring-indigo-500/50 mb-4 font-jp text-lg placeholder:text-zinc-600 shadow-sm transition-all"
+            className="w-full p-3 text-center bg-[#1A1D24] rounded-[16px] text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500/50 mb-3 shadow-sm placeholder:text-zinc-600 font-medium text-sm"
           />
-          <button onClick={() => handleAnswer(typeInput)} className="w-full py-4.5 bg-indigo-500 text-white font-bold rounded-full shadow-md shadow-indigo-500/20 active:scale-[0.98] transition-all text-lg">
+          <button onClick={() => handleAnswer(typeInput)} className="w-full py-3 bg-cyan-500 text-white font-bold text-sm rounded-full shadow-md active:scale-[0.98] transition-all hover:bg-cyan-400">
             Submit Answer
           </button>
         </div>
       )}
 
-      <div className="mt-10">
-        <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-4">Practice History</div>
-        <div className="flex flex-col gap-3">
-          {history.map((h, i) => (
-            <div key={i} className={`rounded-[20px] p-4 flex items-center justify-between ${h.isC ? 'bg-indigo-500/10 ring-1 ring-indigo-500/20' : 'bg-pink-500/10 ring-1 ring-pink-500/20'}`}>
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 px-1">Practice History</div>
+        <div className="flex flex-col gap-2.5 overflow-y-auto pr-1 pb-2 custom-scrollbar flex-1">
+          {history.slice(0, 5).map((h, i) => (
+            <div key={i} className={`rounded-[16px] p-3 flex items-center justify-between ${h.isC ? 'bg-cyan-500/10 ring-1 ring-cyan-500/20' : 'bg-purple-500/10 ring-1 ring-purple-500/20'} flex-shrink-0`}>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-black text-zinc-100">{h.display}</span>
-                  <span className={`text-xs font-bold px-1.5 py-0.5 rounded-md ${h.isC ? 'bg-indigo-500/20 text-indigo-400' : 'bg-pink-500/20 text-pink-400'}`}>{h.isC ? 'Correct' : 'Incorrect'}</span>
+                  <span className="font-black text-base text-zinc-100">{h.display}</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${h.isC ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'}`}>{h.isC ? 'Correct' : 'Incorrect'}</span>
                 </div>
-                <div className="text-sm text-zinc-400">You: <span className="text-zinc-200 font-jp">{h.ans}</span></div>
-                {!h.isC && <div className="text-sm text-indigo-400 mt-0.5 font-jp font-medium">Ans: {h.correctR}</div>}
+                <div className="text-xs text-zinc-400">You: <span className="text-zinc-200 font-jp">{h.ans}</span></div>
+                {!h.isC && <div className="text-xs text-cyan-400 mt-1 font-jp font-medium">Ans: {h.correctR}</div>}
               </div>
             </div>
           ))}
+          {history.length === 0 && (
+            <div className="text-center text-zinc-600 text-sm py-4">No history yet</div>
+          )}
         </div>
       </div>
 
-      <button onClick={() => setShowRef(!showRef)} className="w-full mt-10 py-4 bg-zinc-900 text-zinc-400 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:text-zinc-200 hover:bg-zinc-800 transition-colors active:scale-95">
-        <BookOpen className="w-4 h-4" /> Show Cheat Sheet
+      <button onClick={() => setShowRef(!showRef)} className="w-full mt-3 py-3 bg-[#1A1D24] text-zinc-400 rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:text-zinc-100 hover:bg-[#222630] transition-all shadow-sm flex-shrink-0">
+        <BookOpen className="w-5 h-5" /> Show Cheat Sheet
       </button>
       
       <AnimatePresence>
         {showRef && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-4 overflow-hidden">
-            <div className="text-indigo-400 font-bold mb-3 mt-4 text-xs uppercase tracking-wider">Hours (Ji)</div>
-            <table className="w-full border-collapse bg-zinc-900 rounded-[24px] overflow-hidden text-sm shadow-sm">
-              <tbody>
-                <tr><td className="p-4 border-b border-zinc-800/50 text-zinc-300">4:00</td><td className="p-4 border-b border-zinc-800/50 text-zinc-300 font-jp">yoji</td><td className="p-4 border-b border-zinc-800/50 text-zinc-300 font-jp">四時</td></tr>
-                <tr><td className="p-4 border-b border-zinc-800/50 text-zinc-300">7:00</td><td className="p-4 border-b border-zinc-800/50 text-zinc-300 font-jp">shichiji</td><td className="p-4 border-b border-zinc-800/50 text-zinc-300 font-jp">七時</td></tr>
-                <tr><td className="p-4 text-zinc-300">9:00</td><td className="p-4 text-zinc-300 font-jp">kuji</td><td className="p-4 text-zinc-300 font-jp">九時</td></tr>
-              </tbody>
-            </table>
-            <div className="text-indigo-400 font-bold mb-3 mt-6 text-xs uppercase tracking-wider">Minutes (Fun/Pun) - Irregulars</div>
-            <table className="w-full border-collapse bg-zinc-900 rounded-[24px] overflow-hidden text-sm shadow-sm">
-              <tbody>
-                <tr><td className="p-4 border-b border-zinc-800/50 text-zinc-300">1, 6, 8, 10</td><td className="p-4 border-b border-zinc-800/50 text-zinc-300 font-jp">-pun (ippun, roppun...)</td><td className="p-4 border-b border-zinc-800/50 text-pink-400 font-bold font-jp">分</td></tr>
-                <tr><td className="p-4 text-zinc-300">30</td><td className="p-4 text-zinc-300 font-jp">han (half)</td><td className="p-4 text-zinc-300 font-jp">半</td></tr>
-              </tbody>
-            </table>
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-3 overflow-hidden flex-shrink min-h-0 flex flex-col">
+            <div className="text-cyan-400 font-bold mb-2 mt-2 text-xs uppercase tracking-wider px-2 flex-shrink-0">Hours (Ji)</div>
+            <div className="bg-[#1A1D24] rounded-[16px] overflow-hidden shadow-sm overflow-y-auto custom-scrollbar flex-shrink min-h-0">
+              <table className="w-full border-collapse text-xs">
+                <tbody>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">4:00</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">yoji</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">四時</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">7:00</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">shichiji</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">七時</td></tr>
+                  <tr><td className="p-2 text-zinc-300">9:00</td><td className="p-2 text-zinc-300 font-jp">kuji</td><td className="p-2 text-zinc-300 font-jp">九時</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="text-cyan-400 font-bold mb-2 mt-3 text-xs uppercase tracking-wider px-2 flex-shrink-0">Minutes (Fun/Pun) - Irregulars</div>
+            <div className="bg-[#1A1D24] rounded-[16px] overflow-hidden shadow-sm overflow-y-auto custom-scrollbar mb-1 flex-shrink min-h-0">
+              <table className="w-full border-collapse text-xs">
+                <tbody>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">1, 6, 8, 10</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">-pun (ippun, roppun...)</td><td className="p-2 border-b border-[#222630] text-purple-400 font-bold font-jp">分</td></tr>
+                  <tr><td className="p-2 text-zinc-300">30</td><td className="p-2 text-zinc-300 font-jp">han (half)</td><td className="p-2 text-zinc-300 font-jp">半</td></tr>
+                </tbody>
+              </table>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

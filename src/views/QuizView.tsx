@@ -123,7 +123,7 @@ export default function QuizView({ setStreak }: { setStreak: (s: number | ((prev
 
   if (quizState === 'menu') {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-5">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-4 pb-4">
         <div className="text-center mb-4">
           <h2 className="text-3xl font-black text-zinc-100 tracking-tight">Quiz Arena</h2>
           <p className="text-sm text-zinc-500 mt-2">Test your knowledge and speed</p>
@@ -131,7 +131,7 @@ export default function QuizView({ setStreak }: { setStreak: (s: number | ((prev
             {[10, 25, 'all'].map(l => (
               <button 
                 key={l} onClick={() => { playClick(); setLen(l as any); }}
-                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 ${len === l ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'}`}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95 ${len === l ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20' : 'bg-[#1A1D24] text-zinc-400 hover:bg-[#222630]'}`}
               >
                 {l === 'all' ? 'ALL' : l}
               </button>
@@ -139,28 +139,28 @@ export default function QuizView({ setStreak }: { setStreak: (s: number | ((prev
           </div>
         </div>
         
-        <button onClick={() => { playClick(); startQuiz('kana'); }} className="group relative overflow-hidden bg-zinc-900 p-6 rounded-[32px] text-left active:scale-[0.98] transition-all shadow-sm hover:bg-zinc-800/80">
-          <div className="absolute -top-4 -right-4 p-6 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
-            <Type className="w-32 h-32 text-indigo-400" />
+        <button onClick={() => { playClick(); startQuiz('kana'); }} className="group relative overflow-hidden bg-[#1A1D24] p-6 rounded-[28px] text-left active:scale-[0.98] transition-all shadow-sm hover:bg-[#222630]/80">
+          <div className="absolute -top-4 -right-4 p-5 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+            <Type className="w-28 h-28 text-cyan-400" />
           </div>
           <div className="relative z-10">
-            <h3 className="text-xl font-bold text-zinc-100 mb-1 group-hover:text-indigo-400 transition-colors">Kana Challenge</h3>
+            <h3 className="text-xl font-bold text-zinc-100 mb-2 group-hover:text-cyan-400 transition-colors">Kana Challenge</h3>
             <p className="text-sm text-zinc-500 mb-4">Basic, Dakuten & Handakuten</p>
-            <div className="bg-amber-500/10 text-amber-500 text-xs px-3 py-1 rounded-full font-bold font-mono inline-flex items-center gap-1.5">
-              <Medal className="w-3.5 h-3.5" /> Best: {bestTimes.kana > 0 ? `${bestTimes.kana.toFixed(1)}s` : '--:--'}
+            <div className="bg-amber-500/10 text-amber-500 text-xs px-3 py-1.5 rounded-full font-bold font-mono inline-flex items-center gap-1.5">
+              <Medal className="w-4 h-4" /> Best: {bestTimes.kana > 0 ? `${bestTimes.kana.toFixed(1)}s` : '--:--'}
             </div>
           </div>
         </button>
 
-        <button onClick={() => { playClick(); startQuiz('word'); }} className="group relative overflow-hidden bg-zinc-900 p-6 rounded-[32px] text-left active:scale-[0.98] transition-all shadow-sm hover:bg-zinc-800/80">
-          <div className="absolute -top-4 -right-4 p-6 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
-            <Languages className="w-32 h-32 text-pink-400" />
+        <button onClick={() => { playClick(); startQuiz('word'); }} className="group relative overflow-hidden bg-[#1A1D24] p-6 rounded-[28px] text-left active:scale-[0.98] transition-all shadow-sm hover:bg-[#222630]/80">
+          <div className="absolute -top-4 -right-4 p-5 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
+            <Languages className="w-28 h-28 text-purple-400" />
           </div>
           <div className="relative z-10">
-            <h3 className="text-xl font-bold text-zinc-100 mb-1 group-hover:text-pink-400 transition-colors">Vocab Master</h3>
+            <h3 className="text-xl font-bold text-zinc-100 mb-2 group-hover:text-purple-400 transition-colors">Vocab Master</h3>
             <p className="text-sm text-zinc-500 mb-4">Identify words and meanings</p>
-            <div className="bg-amber-500/10 text-amber-500 text-xs px-3 py-1 rounded-full font-bold font-mono inline-flex items-center gap-1.5">
-              <Medal className="w-3.5 h-3.5" /> Best: {bestTimes.word > 0 ? `${bestTimes.word.toFixed(1)}s` : '--:--'}
+            <div className="bg-amber-500/10 text-amber-500 text-xs px-3 py-1.5 rounded-full font-bold font-mono inline-flex items-center gap-1.5">
+              <Medal className="w-4 h-4" /> Best: {bestTimes.word > 0 ? `${bestTimes.word.toFixed(1)}s` : '--:--'}
             </div>
           </div>
         </button>
@@ -171,30 +171,30 @@ export default function QuizView({ setStreak }: { setStreak: (s: number | ((prev
   if (quizState === 'active') {
     const item = questions[index];
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full px-5 relative pt-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full px-4 relative pt-4 max-w-sm mx-auto w-full">
         <div className="flex justify-between items-center mb-8">
-          <button onClick={() => setQuizState('menu')} className="w-10 h-10 bg-zinc-900 text-zinc-400 rounded-full flex items-center justify-center hover:bg-zinc-800 hover:text-zinc-200 transition-colors active:scale-95"><X className="w-5 h-5" /></button>
-          <div className="flex-1 mx-5 h-2.5 bg-zinc-900 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 transition-all duration-100 ease-linear rounded-full" style={{ width: `${timeLeft}%` }}></div>
+          <button onClick={() => setQuizState('menu')} className="w-10 h-10 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95"><X className="w-5 h-5" /></button>
+          <div className="flex-1 mx-4 h-2.5 bg-[#1A1D24] rounded-full overflow-hidden">
+            <div className="h-full bg-cyan-500 transition-all duration-100 ease-linear rounded-full" style={{ width: `${timeLeft}%` }}></div>
           </div>
-          <span className="text-xs font-bold font-mono text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-full">{index + 1}/{questions.length}</span>
+          <span className="text-xs font-bold font-mono text-zinc-400 bg-[#1A1D24] px-3 py-1.5 rounded-full">{index + 1}/{questions.length}</span>
         </div>
 
-        <div className="absolute top-16 right-5 flex gap-5 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
-          <div className="flex flex-col items-end">Score <span className="text-indigo-400 text-lg font-black leading-none mt-1">{score}</span></div>
-          <div className="flex flex-col items-end">Time <span className="text-zinc-100 text-lg font-black leading-none mt-1">{liveTime.toFixed(1)}<span className="text-xs text-zinc-500 ml-0.5">s</span></span></div>
+        <div className="absolute top-16 right-4 flex gap-5 text-xs font-bold uppercase tracking-wider text-zinc-500">
+          <div className="flex flex-col items-end">Score <span className="text-cyan-400 text-xl font-black leading-none mt-1.5">{score}</span></div>
+          <div className="flex flex-col items-end">Time <span className="text-zinc-100 text-xl font-black leading-none mt-1.5">{liveTime.toFixed(1)}<span className="text-xs text-zinc-500 ml-0.5">s</span></span></div>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center -mt-10">
           <div className="relative w-full text-center mb-12">
             <div className={`${item.c.length > 5 ? 'text-5xl' : 'text-[80px]'} font-black text-zinc-100 drop-shadow-sm z-10 relative font-jp`}>{item.c}</div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-[320px]">
             {options.map(opt => {
-              let btnClass = "py-4.5 bg-zinc-900 rounded-2xl text-zinc-200 font-bold text-base shadow-sm active:scale-95 transition-all hover:bg-zinc-800";
+              let btnClass = "py-4 bg-[#1A1D24] rounded-[16px] text-zinc-200 font-bold text-base shadow-sm active:scale-95 transition-all hover:bg-[#222630]";
               if (selectedOpt !== null) {
-                if (opt.id === item.id) btnClass = "py-4.5 bg-indigo-500 text-white font-bold text-base shadow-md shadow-indigo-500/20 rounded-2xl";
-                else if (opt.id === selectedOpt) btnClass = "py-4.5 bg-pink-500 text-white font-bold text-base shadow-md shadow-pink-500/20 rounded-2xl";
+                if (opt.id === item.id) btnClass = "py-4 bg-cyan-500 text-white font-bold text-base shadow-md shadow-cyan-500/20 rounded-[16px]";
+                else if (opt.id === selectedOpt) btnClass = "py-4 bg-purple-500 text-white font-bold text-base shadow-md shadow-purple-500/20 rounded-[16px]";
                 else btnClass += " opacity-40 scale-95";
               }
               
@@ -218,30 +218,30 @@ export default function QuizView({ setStreak }: { setStreak: (s: number | ((prev
   const isNewRecord = acc >= 80 && (bestTimes[mode] === 0 || duration <= bestTimes[mode]);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center px-5">
-      <div className="w-24 h-24 bg-zinc-900 rounded-full flex items-center justify-center mb-6 shadow-sm">
-        <Trophy className={`w-12 h-12 ${isNewRecord ? 'text-amber-400' : 'text-indigo-400'}`} />
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full text-center px-4 max-w-sm mx-auto">
+      <div className="w-24 h-24 bg-[#1A1D24] rounded-full flex items-center justify-center mb-6 shadow-sm">
+        <Trophy className={`w-12 h-12 ${isNewRecord ? 'text-amber-400' : 'text-cyan-400'}`} />
       </div>
       <h2 className="text-3xl font-black text-zinc-100 mb-2">Complete!</h2>
       <p className="text-zinc-500 text-sm mb-8">You've finished the quiz.</p>
       
-      <div className="bg-zinc-900 p-6 rounded-[32px] w-full max-w-xs mb-10 shadow-sm relative overflow-hidden">
+      <div className="bg-[#1A1D24] p-6 rounded-[28px] w-full max-w-[300px] mb-10 shadow-sm relative overflow-hidden">
         {isNewRecord && <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500"></div>}
         <div className="flex justify-between items-center">
           <div className="text-left">
-            <p className="text-[11px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Accuracy</p>
-            <p className="text-3xl font-black text-indigo-400">{acc}%</p>
+            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider mb-1">Accuracy</p>
+            <p className="text-3xl font-black text-cyan-400">{acc}%</p>
           </div>
-          <div className="w-px h-12 bg-zinc-800"></div>
+          <div className="w-px h-12 bg-[#222630]"></div>
           <div className="text-right">
-            <p className="text-[11px] text-zinc-500 uppercase font-bold tracking-wider mb-1">Time</p>
-            <p className="text-3xl font-black text-zinc-100">{duration.toFixed(1)}<span className="text-lg text-zinc-500 ml-0.5">s</span></p>
+            <p className="text-xs text-zinc-500 uppercase font-bold tracking-wider mb-1">Time</p>
+            <p className="text-3xl font-black text-zinc-100">{duration.toFixed(1)}<span className="text-base text-zinc-500 ml-0.5">s</span></p>
           </div>
         </div>
         {isNewRecord && <p className="text-xs font-bold text-amber-500 mt-5 flex items-center justify-center gap-1.5 bg-amber-500/10 py-2 rounded-xl"><Medal className="w-4 h-4" /> New Record!</p>}
       </div>
 
-      <button onClick={() => setQuizState('menu')} className="w-full max-w-xs py-4 bg-zinc-800 text-zinc-100 rounded-full font-bold text-base hover:bg-zinc-700 flex items-center justify-center gap-2 active:scale-95 transition-all">
+      <button onClick={() => setQuizState('menu')} className="w-full max-w-[300px] py-4 bg-[#222630] text-zinc-100 rounded-full font-bold text-base hover:bg-[#2A2E38] flex items-center justify-center gap-2 active:scale-95 transition-all">
         Back to Menu
       </button>
     </motion.div>

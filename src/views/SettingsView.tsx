@@ -45,34 +45,34 @@ export default function SettingsView() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col pb-10 px-4 max-w-md mx-auto w-full">
-      <h2 className="text-2xl font-black text-zinc-100 mb-8 flex items-center gap-3">
-        <Settings className="w-7 h-7 text-indigo-400" /> Settings
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col pt-4 pb-10 px-4 max-w-sm mx-auto w-full">
+      <h2 className="text-3xl font-black text-zinc-100 mb-8 flex items-center gap-3">
+        <Settings className="w-8 h-8 text-cyan-400" /> Settings
       </h2>
       <div className="space-y-4">
-        <div className="bg-zinc-900 p-5 rounded-[28px] shadow-sm">
+        <div className="bg-[#1A1D24] p-6 rounded-[28px] shadow-sm">
           <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-4">Translation Language</label>
           <div className="flex gap-3">
             <button 
               onClick={() => handleLangChange('en')} 
-              className={`flex-1 py-3.5 rounded-[20px] text-sm font-bold transition-all ${lang === 'en' ? 'bg-indigo-500 text-white shadow-md scale-[1.02]' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700'}`}
+              className={`flex-1 py-3.5 rounded-[20px] text-sm font-bold transition-all ${lang === 'en' ? 'bg-cyan-500 text-white shadow-md scale-[1.02]' : 'bg-[#222630] text-zinc-400 hover:text-zinc-200 hover:bg-[#2A2E38]'}`}
             >
               English
             </button>
             <button 
               onClick={() => handleLangChange('ne')} 
-              className={`flex-1 py-3.5 rounded-[20px] text-sm font-bold transition-all ${lang === 'ne' ? 'bg-indigo-500 text-white shadow-md scale-[1.02]' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700'}`}
+              className={`flex-1 py-3.5 rounded-[20px] text-sm font-bold transition-all ${lang === 'ne' ? 'bg-cyan-500 text-white shadow-md scale-[1.02]' : 'bg-[#222630] text-zinc-400 hover:text-zinc-200 hover:bg-[#2A2E38]'}`}
             >
               Nepali
             </button>
           </div>
         </div>
         
-        <div className="bg-zinc-900 p-5 rounded-[28px] shadow-sm">
-          <label className="block text-xs text-indigo-400 uppercase font-bold tracking-wider mb-2">Import Words (TXT)</label>
+        <div className="bg-[#1A1D24] p-6 rounded-[28px] shadow-sm">
+          <label className="block text-xs text-cyan-400 uppercase font-bold tracking-wider mb-2">Import Words (TXT)</label>
           <p className="text-sm text-zinc-500 mb-4 font-medium">Format: Katakana|Romaji|English|Nepali</p>
-          <label className="flex items-center justify-center gap-2 w-full py-4 bg-zinc-800 text-zinc-100 rounded-[20px] text-sm font-bold cursor-pointer hover:bg-zinc-700 transition-colors shadow-sm active:scale-[0.98]">
-            <Upload className="w-5 h-5 text-indigo-400" /> Choose File
+          <label className="flex items-center justify-center gap-2 w-full py-4 bg-[#222630] text-zinc-100 rounded-[20px] text-sm font-bold cursor-pointer hover:bg-[#2A2E38] transition-colors shadow-sm active:scale-[0.98]">
+            <Upload className="w-5 h-5 text-cyan-400" /> Choose File
             <input type="file" onChange={handleImport} className="hidden" accept=".txt" />
           </label>
         </div>

@@ -23,7 +23,7 @@ function DrawingCanvas() {
     canvas.width = rect.width;
     canvas.height = rect.height;
     
-    ctx.strokeStyle = '#818cf8'; // indigo-400
+    ctx.strokeStyle = '#00E5FF'; // cyan-400
     ctx.lineWidth = 6;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -79,7 +79,7 @@ function DrawingCanvas() {
 
   return (
     <div className="flex flex-col gap-2 mb-4">
-      <div className="relative w-full aspect-square bg-[#0f0f11] rounded-[24px] border border-zinc-800 overflow-hidden touch-none shadow-inner">
+      <div className="relative w-full aspect-square bg-[#11131A] rounded-[20px] border border-zinc-800 overflow-hidden touch-none shadow-inner">
         <canvas
           ref={canvasRef}
           className="w-full h-full cursor-crosshair"
@@ -165,15 +165,15 @@ export default function LearnView() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full">
-      <div className="sticky top-0 bg-[#0f0f11]/95 backdrop-blur-md py-3 z-20 space-y-4 mb-2 px-5">
+      <div className="sticky top-0 bg-[#11131A]/95 backdrop-blur-md py-2.5 z-20 space-y-3 mb-2 px-4">
         <div className="relative">
-          <Search className="absolute left-4 top-3.5 w-5 h-5 text-zinc-500" />
+          <Search className="absolute left-3.5 top-3 w-4 h-4 text-zinc-500" />
           <input 
             type="text" 
             value={search}
             onChange={handleSearch}
             placeholder="Search vocabulary..." 
-            className="w-full bg-zinc-900/80 text-zinc-100 text-base rounded-full py-3 pl-12 pr-4 border border-white/5 focus:bg-zinc-800 focus:outline-none transition-colors shadow-sm"
+            className="w-full bg-[#1A1D24]/80 text-zinc-100 text-sm rounded-full py-2.5 pl-10 pr-4 border border-white/5 focus:bg-[#222630] focus:outline-none transition-colors shadow-sm"
           />
         </div>
         
@@ -183,8 +183,8 @@ export default function LearnView() {
               <button 
                 key={f}
                 onClick={() => { playClick(); setFilter(f); setSearch(''); }}
-                className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
-                  filter === f ? 'bg-indigo-500/20 text-indigo-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                  filter === f ? 'bg-cyan-500/20 text-cyan-400' : 'bg-[#1A1D24] text-zinc-400 hover:bg-[#222630]'
                 }`}
               >
                 {f === 'basic' ? 'Basic' : f === 'dakuten' ? 'Dakuten (゛)' : f === 'handakuten' ? 'Handakuten (゜)' : 'Vocabulary'}
@@ -195,101 +195,101 @@ export default function LearnView() {
       </div>
 
       {viewMode === 'categories' && !search && (
-        <div className="flex flex-col gap-3 mt-2 px-5 pb-8">
-          <button onClick={() => selectCategory('basic')} className="w-full p-5 bg-zinc-900 rounded-[28px] flex items-center gap-5 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0">
-              <span className="text-2xl font-bold font-jp">ア</span>
+        <div className="flex flex-col gap-2.5 mt-2 px-4 pb-6">
+          <button onClick={() => selectCategory('basic')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+              <span className="text-xl font-bold font-jp">ア</span>
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-[17px] font-bold text-zinc-100 mb-0.5">Basic Katakana</h3>
-              <p className="text-[13px] text-zinc-500 font-medium">The 46 fundamental characters</p>
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Basic Katakana</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">The 46 fundamental characters</p>
             </div>
-            <ChevronRight className="text-zinc-600 w-5 h-5 shrink-0" />
+            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
           </button>
 
-          <button onClick={() => selectCategory('dakuten')} className="w-full p-5 bg-zinc-900 rounded-[28px] flex items-center gap-5 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
-              <span className="text-2xl font-bold font-jp">ガ</span>
+          <button onClick={() => selectCategory('dakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+              <span className="text-xl font-bold font-jp">ガ</span>
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-[17px] font-bold text-zinc-100 mb-0.5">Dakuten (゛)</h3>
-              <p className="text-[13px] text-zinc-500 font-medium">Voiced sounds (Ga, Gi, Gu...)</p>
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Dakuten (゛)</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">Voiced sounds (Ga, Gi, Gu...)</p>
             </div>
-            <ChevronRight className="text-zinc-600 w-5 h-5 shrink-0" />
+            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
           </button>
 
-          <button onClick={() => selectCategory('handakuten')} className="w-full p-5 bg-zinc-900 rounded-[28px] flex items-center gap-5 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-14 h-14 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-400 shrink-0">
-              <span className="text-2xl font-bold font-jp">パ</span>
+          <button onClick={() => selectCategory('handakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
+              <span className="text-xl font-bold font-jp">パ</span>
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-[17px] font-bold text-zinc-100 mb-0.5">Handakuten (゜)</h3>
-              <p className="text-[13px] text-zinc-500 font-medium">P-sounds (Pa, Pi, Pu...)</p>
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Handakuten (゜)</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">P-sounds (Pa, Pi, Pu...)</p>
             </div>
-            <ChevronRight className="text-zinc-600 w-5 h-5 shrink-0" />
+            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
           </button>
 
-          <button onClick={() => selectCategory('words')} className="w-full p-5 bg-zinc-900 rounded-[28px] flex items-center gap-5 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
-              <Languages className="w-6 h-6" />
+          <button onClick={() => selectCategory('words')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+              <Languages className="w-5 h-5" />
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-[17px] font-bold text-zinc-100 mb-0.5">Vocabulary</h3>
-              <p className="text-[13px] text-zinc-500 font-medium">Common words & phrases</p>
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Vocabulary</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">Common words & phrases</p>
             </div>
-            <ChevronRight className="text-zinc-600 w-5 h-5 shrink-0" />
+            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
           </button>
         </div>
       )}
 
       {(viewMode === 'grid' || search) && (
-        <div className="flex flex-col h-full px-5">
-          <div className="flex items-center gap-3 mb-5 mt-2">
-            <button onClick={() => { setViewMode('categories'); setSearch(''); }} className="w-10 h-10 bg-zinc-900 text-zinc-400 rounded-full flex items-center justify-center hover:bg-zinc-800 hover:text-zinc-200 transition-colors active:scale-95">
-              <ArrowLeft className="w-5 h-5" />
+        <div className="flex flex-col h-full px-4">
+          <div className="flex items-center gap-3 mb-4 mt-2">
+            <button onClick={() => { setViewMode('categories'); setSearch(''); }} className="w-8 h-8 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95">
+              <ArrowLeft className="w-4 h-4" />
             </button>
-            <span className="text-base font-bold text-indigo-400">
+            <span className="text-sm font-bold text-cyan-400">
               {search ? 'Search Results' : filter === 'basic' ? 'Basic Katakana' : filter === 'dakuten' ? 'Dakuten' : filter === 'handakuten' ? 'Handakuten' : 'Vocabulary'}
             </span>
           </div>
 
-          <div className={isWordMode ? "flex flex-col gap-3 pb-8" : "grid grid-cols-4 sm:grid-cols-5 gap-3 pb-8 content-start"}>
+          <div className={isWordMode ? "flex flex-col gap-2.5 pb-6" : "grid grid-cols-4 sm:grid-cols-5 gap-2.5 pb-6 content-start"}>
             {displayedItems.length === 0 && (
-              <div className="col-span-full text-center text-zinc-500 mt-10">No items found.</div>
+              <div className="col-span-full text-center text-zinc-500 mt-8 text-sm">No items found.</div>
             )}
             {displayedItems.map(item => {
               const known = progress[item.id]?.box > 0;
               if (isWordMode) {
                 return (
-                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-zinc-900 rounded-3xl p-4 flex justify-between items-center ${known ? 'ring-1 ring-indigo-500/40' : ''} active:scale-[0.98] transition cursor-pointer shadow-sm`}>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-indigo-400 font-bold text-xl">
+                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-3 flex justify-between items-center ${known ? 'ring-1 ring-cyan-500/40' : ''} active:scale-[0.98] transition cursor-pointer shadow-sm`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#222630] flex items-center justify-center text-cyan-400 font-bold text-lg">
                         {item.c.charAt(0)}
                       </div>
                       <div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-lg font-bold text-zinc-100">{item.c}</span>
-                          <span className="text-xs text-zinc-500 font-mono">{item.r}</span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-base font-bold text-zinc-100">{item.c}</span>
+                          <span className="text-[10px] text-zinc-500 font-mono">{item.r}</span>
                         </div>
-                        <div className="text-sm text-zinc-400 font-medium">
-                          {item.m || item.r} {lang === 'ne' && item.n && <span className="text-zinc-500 text-xs ml-1">({item.n})</span>}
+                        <div className="text-xs text-zinc-400 font-medium">
+                          {item.m || item.r} {lang === 'ne' && item.n && <span className="text-zinc-500 text-[10px] ml-1">({item.n})</span>}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <button onClick={(e) => { e.stopPropagation(); speak(item.c); }} className="w-10 h-10 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center hover:text-indigo-400 hover:bg-zinc-700 transition-colors active:scale-90">
-                        <Volume2 className="w-5 h-5" />
+                    <div className="flex items-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); speak(item.c); }} className="w-8 h-8 rounded-full bg-[#222630] text-zinc-400 flex items-center justify-center hover:text-cyan-400 hover:bg-[#2A2E38] transition-colors active:scale-90">
+                        <Volume2 className="w-4 h-4" />
                       </button>
-                      {known && <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>}
+                      {known && <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full"></div>}
                     </div>
                   </div>
                 );
               } else {
                 return (
-                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-zinc-900 rounded-3xl p-3 flex flex-col items-center justify-center ${known ? 'ring-1 ring-indigo-500/40' : ''} active:scale-95 transition cursor-pointer shadow-sm aspect-square`}>
-                    <span className="text-[32px] font-bold text-zinc-100 text-center leading-tight mb-1">{item.c}</span>
-                    <span className="text-[11px] text-zinc-500 font-mono font-bold truncate w-full text-center">{item.r}</span>
-                    {known && <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-indigo-400 rounded-full shadow-[0_0_6px_rgba(99,102,241,0.5)]"></div>}
+                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-2 flex flex-col items-center justify-center ${known ? 'ring-1 ring-cyan-500/40' : ''} active:scale-95 transition cursor-pointer shadow-sm aspect-square`}>
+                    <span className="text-[28px] font-bold text-zinc-100 text-center leading-tight mb-0.5">{item.c}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono font-bold truncate w-full text-center">{item.r}</span>
+                    {known && <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_6px_rgba(0,229,255,0.5)]"></div>}
                   </div>
                 );
               }
@@ -300,39 +300,39 @@ export default function LearnView() {
 
       <AnimatePresence>
         {selectedItem && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-center justify-center p-5" onClick={() => setSelectedItem(null)}>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-center justify-center p-4" onClick={() => setSelectedItem(null)}>
             <motion.div 
               initial={{ scale: 0.95, opacity: 0, y: 20 }} 
               animate={{ scale: 1, opacity: 1, y: 0 }} 
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
               onClick={e => e.stopPropagation()}
-              className="bg-[#18181b] w-full max-w-sm rounded-[32px] p-6 shadow-2xl"
+              className="bg-[#1A1D24] w-full max-w-sm rounded-[28px] p-5 shadow-2xl"
             >
-              <div className="flex justify-between items-start mb-5">
-                <h3 className={`${selectedItem.c.length > 5 ? 'text-4xl' : 'text-6xl'} font-black text-zinc-100 leading-none`}>{selectedItem.c}</h3>
-                <button onClick={() => setSelectedItem(null)} className="w-10 h-10 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center hover:bg-zinc-700 transition-colors active:scale-90">
-                  <X className="w-5 h-5" />
+              <div className="flex justify-between items-start mb-4">
+                <h3 className={`${selectedItem.c.length > 5 ? 'text-3xl' : 'text-5xl'} font-black text-zinc-100 leading-none`}>{selectedItem.c}</h3>
+                <button onClick={() => setSelectedItem(null)} className="w-8 h-8 rounded-full bg-[#222630] text-zinc-300 flex items-center justify-center hover:bg-[#2A2E38] transition-colors active:scale-90">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-xl text-indigo-400 font-mono font-bold mb-4">{selectedItem.r}</p>
-              <div className="flex items-center gap-3 mb-2">
-                <p className="text-zinc-100 font-bold text-xl">{selectedItem.m || selectedItem.r.toUpperCase()}</p>
-                <button onClick={() => speak(selectedItem.c)} className="text-blue-400 p-2 bg-blue-500/10 rounded-full active:scale-90 transition-transform"><Volume2 className="w-5 h-5" /></button>
+              <p className="text-lg text-cyan-400 font-mono font-bold mb-3">{selectedItem.r}</p>
+              <div className="flex items-center gap-2 mb-1.5">
+                <p className="text-zinc-100 font-bold text-lg">{selectedItem.m || selectedItem.r.toUpperCase()}</p>
+                <button onClick={() => speak(selectedItem.c)} className="text-cyan-400 p-1.5 bg-cyan-500/10 rounded-full active:scale-90 transition-transform"><Volume2 className="w-4 h-4" /></button>
               </div>
-              <p className="text-sm text-zinc-500 font-medium mb-6">{lang === 'ne' ? selectedItem.n : (selectedItem.m ? '' : 'Katakana Letter')}</p>
+              <p className="text-xs text-zinc-500 font-medium mb-5">{lang === 'ne' ? selectedItem.n : (selectedItem.m ? '' : 'Katakana Letter')}</p>
               
               <button 
                 onClick={() => setShowDrawing(!showDrawing)} 
-                className="w-full py-3 bg-zinc-800 rounded-2xl text-sm font-bold text-zinc-300 mb-4 hover:bg-zinc-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
+                className="w-full py-2.5 bg-[#222630] rounded-xl text-xs font-bold text-zinc-300 mb-3 hover:bg-[#2A2E38] transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
               >
-                <PenTool className="w-4 h-4" /> Practice Writing
+                <PenTool className="w-3.5 h-3.5" /> Practice Writing
               </button>
               
               {showDrawing && <DrawingCanvas />}
 
-              <button onClick={() => markAsKnown(selectedItem)} className="w-full py-4 bg-indigo-500 text-white rounded-full font-bold text-base transition-colors flex items-center justify-center gap-2 active:scale-[0.98] shadow-md shadow-indigo-500/20">
-                <Check className="w-5 h-5" /> Mark to Review
+              <button onClick={() => markAsKnown(selectedItem)} className="w-full py-3 bg-gradient-to-r from-cyan-400 to-purple-500 text-white rounded-full font-bold text-sm transition-colors flex items-center justify-center gap-2 active:scale-[0.98] shadow-md shadow-cyan-500/20">
+                <Check className="w-4 h-4" /> Mark to Review
               </button>
             </motion.div>
           </div>
