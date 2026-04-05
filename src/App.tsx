@@ -38,6 +38,7 @@ export default function App() {
         const navBarColor = isSplash ? '#050811' : (isOnboarding ? '#11131A' : '#1A1D24');
 
         await StatusBar.setOverlaysWebView({ overlay: true });
+        await StatusBar.setBackgroundColor({ color: '#00000000' });
         await StatusBar.setStyle({ style: Style.Dark });
         
         // Ensure the body background matches so the transparent status bar looks correct
