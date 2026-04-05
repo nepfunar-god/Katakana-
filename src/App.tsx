@@ -33,7 +33,7 @@ export default function App() {
         setIsOnboarded(true);
         setView('learn');
       }
-    }, 2000);
+    }, 3500);
 
     const savedStreak = localStorage.getItem('kn_streak');
     if (savedStreak) setStreak(parseInt(savedStreak, 10));
@@ -57,9 +57,8 @@ export default function App() {
         <header className="flex-none h-[60px] bg-[#11131A]/90 backdrop-blur-xl z-50 flex items-center justify-between px-4 pt-1">
           <div className="flex flex-col justify-center">
             <h1 className="text-[20px] font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 tracking-tight">
-              Katakana King
+              Katakana Pro
             </h1>
-            <span className="text-[10px] text-zinc-500 font-medium font-jp">カタカナをマスター</span>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 bg-[#1A1D24]/80 px-2.5 py-1 rounded-full border border-white/5 shadow-sm">

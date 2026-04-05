@@ -253,15 +253,16 @@ export default function LearnView() {
             </span>
           </div>
 
-          <div className={isWordMode ? "flex flex-col gap-2.5 pb-6" : "grid grid-cols-4 sm:grid-cols-5 gap-2.5 pb-6 content-start"}>
+          <div className={isWordMode ? "flex flex-col gap-2.5 pb-6" : "grid grid-cols-5 gap-2.5 pb-6 content-start"}>
             {displayedItems.length === 0 && (
               <div className="col-span-full text-center text-zinc-500 mt-8 text-sm">No items found.</div>
             )}
             {displayedItems.map(item => {
+              if (item.empty) return <div key={item.id} className="aspect-square" />;
               const known = progress[item.id]?.box > 0;
               if (isWordMode) {
                 return (
-                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-3 flex justify-between items-center ${known ? 'ring-1 ring-cyan-500/40' : ''} active:scale-[0.98] transition cursor-pointer shadow-sm`}>
+                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-3 flex justify-between items-center ring-1 ${known ? 'ring-cyan-500/50' : 'ring-white/10'} active:scale-[0.98] transition cursor-pointer shadow-sm`}>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#222630] flex items-center justify-center text-cyan-400 font-bold text-lg">
                         {item.c.charAt(0)}
@@ -286,7 +287,7 @@ export default function LearnView() {
                 );
               } else {
                 return (
-                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-2 flex flex-col items-center justify-center ${known ? 'ring-1 ring-cyan-500/40' : ''} active:scale-95 transition cursor-pointer shadow-sm aspect-square`}>
+                  <div key={item.id} onClick={() => openModal(item)} className={`relative bg-[#1A1D24] rounded-[20px] p-2 flex flex-col items-center justify-center ring-1 ${known ? 'ring-cyan-500/50' : 'ring-white/10'} active:scale-95 transition cursor-pointer shadow-sm aspect-square`}>
                     <span className="text-[28px] font-bold text-zinc-100 text-center leading-tight mb-0.5">{item.c}</span>
                     <span className="text-[10px] text-zinc-500 font-mono font-bold truncate w-full text-center">{item.r}</span>
                     {known && <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_6px_rgba(0,229,255,0.5)]"></div>}

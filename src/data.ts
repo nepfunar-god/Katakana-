@@ -7,9 +7,9 @@ export const RAW_DATA = {
     {id:'na',c:'ナ',r:'na'}, {id:'ni',c:'ニ',r:'ni'}, {id:'nu',c:'ヌ',r:'nu'}, {id:'ne',c:'ネ',r:'ne'}, {id:'no',c:'ノ',r:'no'},
     {id:'ha',c:'ハ',r:'ha'}, {id:'hi',c:'ヒ',r:'hi'}, {id:'fu',c:'フ',r:'fu'}, {id:'he',c:'ヘ',r:'he'}, {id:'ho',c:'ホ',r:'ho'},
     {id:'ma',c:'マ',r:'ma'}, {id:'mi',c:'ミ',r:'mi'}, {id:'mu',c:'ム',r:'mu'}, {id:'me',c:'メ',r:'me'}, {id:'mo',c:'モ',r:'mo'},
-    {id:'ya',c:'ヤ',r:'ya'}, {id:'yu',c:'ユ',r:'yu'}, {id:'yo',c:'ヨ',r:'yo'},
+    {id:'ya',c:'ヤ',r:'ya'}, {id:'empty_yi',c:'',r:'',empty:true}, {id:'yu',c:'ユ',r:'yu'}, {id:'empty_ye',c:'',r:'',empty:true}, {id:'yo',c:'ヨ',r:'yo'},
     {id:'ra',c:'ラ',r:'ra'}, {id:'ri',c:'リ',r:'ri'}, {id:'ru',c:'ル',r:'ru'}, {id:'re',c:'レ',r:'re'}, {id:'ro',c:'ロ',r:'ro'},
-    {id:'wa',c:'ワ',r:'wa'}, {id:'wo',c:'ヲ',r:'o'}, {id:'n',c:'ン',r:'n'}
+    {id:'wa',c:'ワ',r:'wa'}, {id:'empty_wi',c:'',r:'',empty:true}, {id:'wo',c:'ヲ',r:'o'}, {id:'empty_we',c:'',r:'',empty:true}, {id:'n',c:'ン',r:'n'}
   ],
   dakuten: [
     {id:'ga',c:'ガ',r:'ga'}, {id:'gi',c:'ギ',r:'gi'}, {id:'gu',c:'グ',r:'gu'}, {id:'ge',c:'ゲ',r:'ge'}, {id:'go',c:'ゴ',r:'go'},

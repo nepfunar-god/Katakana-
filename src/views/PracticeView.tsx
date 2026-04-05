@@ -140,6 +140,16 @@ export default function PracticeView() {
 
   const item = queue[index];
 
+  const getTextSizeClass = (text: string) => {
+    const len = text.length;
+    if (len <= 2) return 'text-[80px]';
+    if (len === 3) return 'text-[60px]';
+    if (len === 4) return 'text-[48px]';
+    if (len === 5) return 'text-[40px]';
+    if (len === 6) return 'text-[32px]';
+    return 'text-[28px]';
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center h-full pb-4 px-4 relative max-w-sm mx-auto w-full">
       <button onClick={() => { playClick(); setIsActive(false); }} className="absolute top-4 left-4 w-10 h-10 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95 z-20 shadow-sm">
@@ -157,7 +167,7 @@ export default function PracticeView() {
           <div className="absolute w-full h-full backface-hidden bg-[#1A1D24] rounded-[32px] shadow-lg flex flex-col items-center justify-center p-6 hover:bg-[#222630]/80 transition-colors border border-[#222630]" style={{ backfaceVisibility: 'hidden' }}>
             <div className="absolute top-6 right-6 w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse shadow-[0_0_10px_rgba(213,0,249,0.6)]"></div>
             <span className="text-zinc-500 text-xs uppercase tracking-widest mb-10 font-bold">Tap to Reveal</span>
-            <div className={`${item.c.length > 5 ? 'text-5xl' : 'text-[80px]'} font-jp font-black text-zinc-100 mb-8 drop-shadow-sm`}>{item.c}</div>
+            <div className={`${getTextSizeClass(item.c)} font-jp font-black text-zinc-100 mb-8 drop-shadow-sm whitespace-nowrap tracking-tighter w-full text-center px-2`}>{item.c}</div>
           </div>
           {/* Back */}
           <div className="absolute w-full h-full backface-hidden bg-[#1A1D24] rounded-[32px] shadow-lg flex flex-col items-center justify-center p-6 ring-1 ring-cyan-500/20" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
