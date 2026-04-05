@@ -57,7 +57,7 @@ export default function App() {
         <header className="flex-none h-[60px] bg-[#11131A]/90 backdrop-blur-xl z-50 flex items-center justify-between px-4 pt-1">
           <div className="flex flex-col justify-center">
             <h1 className="text-[20px] font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 tracking-tight">
-              Katakana Night
+              Katakana King
             </h1>
             <span className="text-[10px] text-zinc-500 font-medium font-jp">カタカナをマスター</span>
           </div>

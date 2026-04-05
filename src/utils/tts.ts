@@ -18,17 +18,7 @@ export async function speak(text: string) {
     // If native fails (e.g., plugin not synced, language missing), fall through to web fallbacks
   }
 
-  // 2. Try Google Translate TTS API (Highly reliable in Android WebViews)
-  try {
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=ja&client=tw-ob&q=${encodeURIComponent(text)}`;
-    const audio = new Audio(url);
-    await audio.play();
-    return; // If successful, exit
-  } catch (e) {
-    console.error("Google TTS Error:", e);
-  }
-
-  // 3. Final Fallback to Web Speech API
+  // 2. Fallback to Web Speech API
   try {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();

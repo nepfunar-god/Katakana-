@@ -23,7 +23,7 @@ export default function SplashView() {
         transition={{ delay: 0.4 }}
         className="text-4xl font-black text-zinc-100 tracking-tight"
       >
-        Katakana Night
+        Katakana King
       </motion.h1>
     </motion.div>
   );

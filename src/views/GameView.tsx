@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Rocket, Heart, Trophy, X, Play } from 'lucide-react';
 import { RAW_DATA } from '../data';
 import { playCorrect, playIncorrect, playClick } from '../utils/audio';
+import { speak } from '../utils/tts';
 
 type GameState = 'menu' | 'playing' | 'gameover';
 type Difficulty = 'easy' | 'medium' | 'hard';
+type DropMode = 'waterfall' | 'single';
 
 type FallingItem = {
   id: string;
@@ -19,12 +21,14 @@ type FallingItem = {
 export default function GameView() {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [dropMode, setDropMode] = useState<DropMode>('waterfall');
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [fallingItems, setFallingItems] = useState<FallingItem[]>([]);
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const penalizedIds = useRef<Set<string>>(new Set());
 
   const pool = [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten];
 
@@ -38,6 +42,7 @@ export default function GameView() {
     setLives(3);
     setFallingItems([]);
     setInput('');
+    penalizedIds.current.clear();
     setGameState('playing');
     setTimeout(() => {
       inputRef.current?.focus();
@@ -50,22 +55,30 @@ export default function GameView() {
 
     const interval = setInterval(() => {
       setFallingItems(items => {
-        let missedCount = 0;
+        let missedItems: FallingItem[] = [];
         const newItems = items.map(item => {
           const newY = item.y + item.speed;
-          if (newY > 100 && item.y <= 100) {
-            missedCount++;
+          if (newY > 100 && !penalizedIds.current.has(item.id)) {
+            missedItems.push(item);
+            penalizedIds.current.add(item.id);
           }
           return { ...item, y: newY };
         });
 
-        if (missedCount > 0) {
-          playIncorrect();
-          setLives(l => {
-            const newLives = Math.max(0, l - missedCount);
-            if (newLives === 0) setGameState('gameover');
-            return newLives;
-          });
+        if (missedItems.length > 0) {
+          setTimeout(() => {
+            playIncorrect();
+            const t = missedItems[0].text;
+            speak(`ちがう、${t}`);
+            
+            setLives(l => {
+              const newLives = Math.max(0, l - missedItems.length);
+              if (newLives === 0 && l > 0) {
+                setGameState('gameover');
+              }
+              return newLives;
+            });
+          }, 0);
         }
 
         return newItems.filter(item => item.y <= 100);
@@ -75,9 +88,9 @@ export default function GameView() {
     return () => clearInterval(interval);
   }, [gameState]);
 
-  // Spawner
+  // Spawner (Waterfall)
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || dropMode !== 'waterfall') return;
 
     const spawnRate = difficulty === 'easy' ? 2000 : difficulty === 'medium' ? 1200 : 800;
     
@@ -96,7 +109,25 @@ export default function GameView() {
 
     const interval = setInterval(spawnItem, spawnRate);
     return () => clearInterval(interval);
-  }, [gameState, difficulty]);
+  }, [gameState, difficulty, dropMode]);
+
+  // Spawner (Single)
+  useEffect(() => {
+    if (gameState !== 'playing' || dropMode !== 'single') return;
+
+    if (fallingItems.length === 0) {
+      const randomItem = pool[Math.floor(Math.random() * pool.length)];
+      const newItem: FallingItem = {
+        id: Math.random().toString(36).substr(2, 9),
+        text: randomItem.c,
+        answer: randomItem.r.toLowerCase(),
+        x: Math.random() * 80 + 10, // 10% to 90%
+        y: -10,
+        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2
+      };
+      setFallingItems([newItem]);
+    }
+  }, [gameState, difficulty, dropMode, fallingItems.length]);
 
   // Handle Game Over
   useEffect(() => {
@@ -112,16 +143,21 @@ export default function GameView() {
     const val = e.target.value.toLowerCase().trim();
     setInput(val);
 
-    setFallingItems(items => {
-      const hitIndex = items.findIndex(item => item.answer === val);
-      if (hitIndex !== -1) {
-        playCorrect();
-        setScore(s => s + 10);
+    if (val === '') return;
+
+    const hitIndex = fallingItems.findIndex(item => item.answer === val);
+    if (hitIndex !== -1) {
+      playCorrect();
+      speak(fallingItems[hitIndex].text);
+      setScore(s => s + 10);
+      setInput('');
+      setFallingItems(items => items.filter((_, i) => i !== hitIndex));
+    } else {
+      const isPrefix = fallingItems.some(item => item.answer.startsWith(val));
+      if (!isPrefix && fallingItems.length > 0) {
         setInput('');
-        return items.filter((_, i) => i !== hitIndex);
       }
-      return items;
-    });
+    }
   };
 
   if (gameState === 'menu') {
@@ -146,6 +182,21 @@ export default function GameView() {
                 className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${difficulty === d ? 'bg-cyan-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
               >
                 {d}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
+          <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-4 text-center">Drop Mode</label>
+          <div className="flex gap-3">
+            {(['waterfall', 'single'] as DropMode[]).map(m => (
+              <button 
+                key={m} 
+                onClick={() => { playClick(); setDropMode(m); }}
+                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${dropMode === m ? 'bg-purple-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
+              >
+                {m}
               </button>
             ))}
           </div>

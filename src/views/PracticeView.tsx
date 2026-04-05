@@ -147,7 +147,7 @@ export default function PracticeView() {
       </button>
       <div className="absolute top-5 right-4 text-sm font-mono text-zinc-500 font-bold bg-[#1A1D24] px-3 py-1.5 rounded-full shadow-sm">{index + 1} / {queue.length}</div>
 
-      <div className="w-full max-w-[300px] aspect-[3/4] relative perspective-1000 z-10 mt-8" onClick={() => { if(!flipped) { playFlip(); setFlipped(true); speak(item.c); } }}>
+      <div className="w-full max-w-[300px] aspect-[3/4] relative perspective-1000 z-10 mt-20" onClick={() => { if(!flipped) { playFlip(); setFlipped(true); speak(item.c); } }}>
         <motion.div 
           className="relative w-full h-full text-center transform-style-3d cursor-pointer"
           animate={{ rotateY: flipped ? 180 : 0 }}
@@ -172,18 +172,20 @@ export default function PracticeView() {
         </motion.div>
       </div>
 
-      <AnimatePresence>
-        {flipped && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
-            className="w-full max-w-[300px] flex justify-between gap-3 mt-10"
-          >
-            <button onClick={() => rateCard(1)} className="flex-1 py-4 bg-[#1A1D24] text-purple-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-purple-500/20 hover:bg-purple-500/10 shadow-sm">Again</button>
-            <button onClick={() => rateCard(3)} className="flex-1 py-4 bg-[#1A1D24] text-blue-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-blue-500/20 hover:bg-blue-500/10 shadow-sm">Hard</button>
-            <button onClick={() => rateCard(5)} className="flex-1 py-4 bg-[#1A1D24] text-cyan-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-cyan-500/20 hover:bg-cyan-500/10 shadow-sm">Good</button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="h-[80px] mt-10 w-full max-w-[300px]">
+        <AnimatePresence>
+          {flipped && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+              className="w-full flex justify-between gap-3"
+            >
+              <button onClick={() => rateCard(1)} className="flex-1 py-4 bg-[#1A1D24] text-purple-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-purple-500/20 hover:bg-purple-500/10 shadow-sm">Again</button>
+              <button onClick={() => rateCard(3)} className="flex-1 py-4 bg-[#1A1D24] text-blue-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-blue-500/20 hover:bg-blue-500/10 shadow-sm">Hard</button>
+              <button onClick={() => rateCard(5)} className="flex-1 py-4 bg-[#1A1D24] text-cyan-400 rounded-2xl font-bold text-xs uppercase tracking-wider active:scale-95 transition-transform ring-1 ring-cyan-500/20 hover:bg-cyan-500/10 shadow-sm">Good</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
