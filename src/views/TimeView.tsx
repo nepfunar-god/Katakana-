@@ -249,11 +249,20 @@ export default function TimeView() {
                 </tbody>
               </table>
             </div>
-            <div className="text-cyan-400 font-bold mb-2 mt-3 text-xs uppercase tracking-wider px-2 flex-shrink-0">Minutes (Fun/Pun) - Irregulars</div>
+            <div className="text-cyan-400 font-bold mb-2 mt-3 text-xs uppercase tracking-wider px-2 flex-shrink-0">Minutes (1-10)</div>
             <div className="bg-[#1A1D24] rounded-[16px] overflow-hidden shadow-sm overflow-y-auto custom-scrollbar mb-1 flex-shrink min-h-0">
               <table className="w-full border-collapse text-xs">
                 <tbody>
-                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">1, 6, 8, 10</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">-pun (ippun, roppun...)</td><td className="p-2 border-b border-[#222630] text-purple-400 font-bold font-jp">分</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">1</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">ippun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">いっぷん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">2</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">nifun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">にふん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">3</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">sanpun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">さんぷん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">4</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">yonpun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">よんぷん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">5</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">gofun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">ごふん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">6</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">roppun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">ろっぷん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">7</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">nanafun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">ななふん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">8</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">happun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">はっぷん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">9</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">kyuufun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">きゅうふん</td></tr>
+                  <tr><td className="p-2 border-b border-[#222630] text-zinc-300">10</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">juppun</td><td className="p-2 border-b border-[#222630] text-zinc-300 font-jp">じゅっぷん</td></tr>
                   <tr><td className="p-2 text-zinc-300">30</td><td className="p-2 text-zinc-300 font-jp">han (half)</td><td className="p-2 text-zinc-300 font-jp">半</td></tr>
                 </tbody>
               </table>

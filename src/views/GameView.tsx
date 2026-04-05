@@ -30,7 +30,7 @@ export default function GameView() {
   const inputRef = useRef<HTMLInputElement>(null);
   const penalizedIds = useRef<Set<string>>(new Set());
 
-  const pool = [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten];
+  const pool = [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten].filter(item => !item.empty);
 
   useEffect(() => {
     setHighScore(parseInt(localStorage.getItem('kn_game_highscore') || '0', 10));
