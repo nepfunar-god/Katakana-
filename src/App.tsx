@@ -6,6 +6,9 @@
 import { useState, useEffect, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Book, Layers, Gamepad2, Clock, Settings, Flame, CalendarDays, Rocket } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { NavigationBar } from '@capgo/capacitor-navigation-bar';
 import LearnView from './views/LearnView';
 import PracticeView from './views/PracticeView';
 import QuizView from './views/QuizView';
@@ -23,6 +26,28 @@ export default function App() {
   const [view, setView] = useState<ViewState>('splash');
   const [streak, setStreak] = useState(0);
   const [isOnboarded, setIsOnboarded] = useState(false);
+
+  useEffect(() => {
+    const updateSystemBars = async () => {
+      if (!Capacitor.isNativePlatform()) return;
+      
+      try {
+        const isSplash = view === 'splash';
+        const isOnboarding = view === 'onboarding';
+        const statusBarColor = isSplash ? '#050811' : '#11131A';
+        const navBarColor = isSplash ? '#050811' : (isOnboarding ? '#11131A' : '#1A1D24');
+
+        await StatusBar.setBackgroundColor({ color: statusBarColor });
+        await StatusBar.setStyle({ style: Style.Dark });
+        
+        await NavigationBar.setNavigationBarColor({ color: navBarColor, darkButtons: false });
+      } catch (e) {
+        console.error('Failed to update system bars', e);
+      }
+    };
+    
+    updateSystemBars();
+  }, [view]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

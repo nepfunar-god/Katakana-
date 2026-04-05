@@ -13,6 +13,8 @@
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.0",
     "@capacitor/core": "^8.3.0",
+    "@capacitor/status-bar": "^8.0.2",
+    "@capgo/capacitor-navigation-bar": "^8.0.25",
     "@google/genai": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
