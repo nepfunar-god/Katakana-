@@ -6,9 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   plugins: {
     StatusBar: {
-      overlaysWebView: false,
+      overlaysWebView: true,
       style: 'DARK',
-      backgroundColor: '#11131A',
     },
   },
 };
