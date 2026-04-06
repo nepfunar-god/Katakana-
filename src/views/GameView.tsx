@@ -161,31 +161,32 @@ export default function GameView() {
   };
 
   const getDynamicSpeed = (text: string, baseSpeed: number, currentScore: number) => {
-    const stats = srsData[text];
     let multiplier = 1.0;
 
-    if (!stats) {
-      multiplier += 0.1; // Slightly faster if never encountered
-    } else {
-      // High average reaction time (> 3s) -> slower (easier)
-      if (stats.avgTime > 3000) {
-        multiplier -= 0.3;
-      } else {
-        multiplier += 0.3; // Fast reaction (< 3s) -> faster (harder)
-      }
-
-      // Encountered many times -> slower
-      if (stats.count > 5) {
-        multiplier -= 0.2;
-      } else if (stats.count < 2) {
-        multiplier += 0.2;
-      }
-    }
-
     if (isProgressive) {
-      // Increase speed by 10% for every 50 points
+      // Progressive Mode: Ignore SRS, increase speed based on score
       const scoreMultiplier = 1 + Math.floor(currentScore / 50) * 0.1;
       multiplier *= scoreMultiplier;
+    } else {
+      // SRS Mode: Use SRS data
+      const stats = srsData[text];
+      if (!stats) {
+        multiplier += 0.1; // Slightly faster if never encountered
+      } else {
+        // High average reaction time (> 3s) -> slower (easier)
+        if (stats.avgTime > 3000) {
+          multiplier -= 0.3;
+        } else {
+          multiplier += 0.3; // Fast reaction (< 3s) -> faster (harder)
+        }
+
+        // Encountered many times -> slower
+        if (stats.count > 5) {
+          multiplier -= 0.2;
+        } else if (stats.count < 2) {
+          multiplier += 0.2;
+        }
+      }
     }
 
     // Clamp to reasonable limits so it doesn't stop or go impossibly fast
@@ -330,31 +331,31 @@ export default function GameView() {
 
   if (gameState === 'menu') {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-4 pb-4">
-        <div className="text-center mb-4 relative">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-3 max-w-sm mx-auto px-4 pb-2">
+        <div className="text-center mb-2 relative mt-2">
           <button 
             onClick={() => { playClick(); setGameState('stats'); }}
             className="absolute right-0 top-0 p-2 bg-[#1A1D24] rounded-full text-cyan-400 hover:bg-[#222630] transition-colors"
             title="Weakness Tracker"
           >
-            <BarChart2 className="w-5 h-5" />
+            <BarChart2 className="w-4 h-4" />
           </button>
-          <div className="w-24 h-24 bg-[#1A1D24] rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm relative overflow-hidden">
+          <div className="w-16 h-16 bg-[#1A1D24] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-50"></div>
-            <Rocket className="w-12 h-12 text-cyan-400 relative z-10" />
+            <Rocket className="w-8 h-8 text-cyan-400 relative z-10" />
           </div>
-          <h2 className="text-3xl font-black text-zinc-100 tracking-tight">Kana Drop</h2>
-          <p className="text-sm text-zinc-500 mt-2">Type the romaji before they hit the ground!</p>
+          <h2 className="text-2xl font-black text-zinc-100 tracking-tight">Kana Drop</h2>
+          <p className="text-xs text-zinc-500 mt-1">Type the romaji before they hit the ground!</p>
         </div>
         
-        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
-          <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-4 text-center">Select Difficulty</label>
-          <div className="flex gap-3">
+        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-1">
+          <label className="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2 text-center">Select Difficulty</label>
+          <div className="flex gap-2">
             {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
               <button 
                 key={d} 
                 onClick={() => { playClick(); setDifficulty(d); }}
-                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${difficulty === d ? 'bg-cyan-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all capitalize active:scale-95 ${difficulty === d ? 'bg-cyan-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
               >
                 {d}
               </button>
@@ -362,14 +363,14 @@ export default function GameView() {
           </div>
         </div>
 
-        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
-          <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-4 text-center">Drop Mode</label>
-          <div className="flex gap-3">
+        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-1">
+          <label className="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2 text-center">Drop Mode</label>
+          <div className="flex gap-2">
             {(['waterfall', 'single'] as DropMode[]).map(m => (
               <button 
                 key={m} 
                 onClick={() => { playClick(); setDropMode(m); }}
-                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${dropMode === m ? 'bg-purple-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all capitalize active:scale-95 ${dropMode === m ? 'bg-purple-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
               >
                 {m}
               </button>
@@ -377,27 +378,27 @@ export default function GameView() {
           </div>
         </div>
 
-        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
+        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-2">
           <div className="flex justify-between items-center">
-            <label className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Progressive Speed</label>
+            <label className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Progressive Speed</label>
             <button
               onClick={() => { playClick(); setIsProgressive(!isProgressive); }}
-              className={`w-12 h-6 rounded-full transition-colors relative ${isProgressive ? 'bg-cyan-500' : 'bg-[#222630]'}`}
+              className={`w-10 h-5 rounded-full transition-colors relative ${isProgressive ? 'bg-cyan-500' : 'bg-[#222630]'}`}
             >
-              <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${isProgressive ? 'left-7' : 'left-1'}`} />
+              <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all ${isProgressive ? 'left-6' : 'left-1'}`} />
             </button>
           </div>
-          <p className="text-[10px] text-zinc-500 mt-2">Speed increases as your score goes up!</p>
+          <p className="text-[9px] text-zinc-500 mt-1.5">Speed increases as your score goes up!</p>
         </div>
 
-        <div className="flex justify-center mb-4">
-          <div className="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-full font-bold font-mono inline-flex items-center gap-2 text-sm">
-            <Trophy className="w-4 h-4" /> High Score: {highScore}
+        <div className="flex justify-center mb-2">
+          <div className="bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold font-mono inline-flex items-center gap-1.5 text-xs">
+            <Trophy className="w-3.5 h-3.5" /> High Score: {highScore}
           </div>
         </div>
 
-        <button onClick={startGame} className="w-full py-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-bold rounded-full shadow-md shadow-cyan-500/20 text-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
-          Start Game <Play className="w-5 h-5" fill="currentColor" />
+        <button onClick={startGame} className="w-full py-3 bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-bold rounded-full shadow-md shadow-cyan-500/20 text-base flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+          Start Game <Play className="w-4 h-4" fill="currentColor" />
         </button>
       </motion.div>
     );
@@ -443,7 +444,16 @@ export default function GameView() {
             <Heart key={i} className={`w-5 h-5 ${i < lives ? 'text-purple-500 fill-purple-500' : 'text-[#222630]'}`} />
           ))}
         </div>
-        <div className="text-xl font-black text-cyan-400 font-mono">{score}</div>
+        <div className="flex items-center gap-4">
+          <div className="text-xl font-black text-cyan-400 font-mono">{score}</div>
+          <button 
+            onClick={() => { playClick(); setGameState('gameover'); }} 
+            className="w-8 h-8 bg-[#1A1D24]/80 rounded-full flex items-center justify-center text-zinc-400 hover:text-white backdrop-blur-md active:scale-95 transition-all"
+            title="Quit Game"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Danger Line */}
