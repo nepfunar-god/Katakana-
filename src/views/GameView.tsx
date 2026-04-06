@@ -32,6 +32,7 @@ export default function GameView() {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [dropMode, setDropMode] = useState<DropMode>('waterfall');
+  const [isProgressive, setIsProgressive] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -42,6 +43,8 @@ export default function GameView() {
   const penalizedIds = useRef<Set<string>>(new Set());
 
   const pool = [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten].filter(item => !item.empty);
+
+  const DANGER_LINE_Y = 82; // 82% of screen height
 
   useEffect(() => {
     setHighScore(parseInt(localStorage.getItem('kn_game_highscore') || '0', 10));
@@ -103,7 +106,7 @@ export default function GameView() {
         let missedItems: FallingItem[] = [];
         const newItems = items.map(item => {
           const newY = item.y + item.speed;
-          if (newY > 100 && !penalizedIds.current.has(item.id)) {
+          if (newY > DANGER_LINE_Y && !penalizedIds.current.has(item.id)) {
             missedItems.push(item);
             penalizedIds.current.add(item.id);
             // Penalize missed items by adding a high reaction time (e.g., 10 seconds)
@@ -128,7 +131,7 @@ export default function GameView() {
           }, 0);
         }
 
-        return newItems.filter(item => item.y <= 100);
+        return newItems.filter(item => item.y <= DANGER_LINE_Y + 5);
       });
     }, 50);
 
@@ -157,29 +160,36 @@ export default function GameView() {
     return pool[Math.floor(Math.random() * pool.length)]; // Fallback
   };
 
-  const getDynamicSpeed = (text: string, baseSpeed: number) => {
+  const getDynamicSpeed = (text: string, baseSpeed: number, currentScore: number) => {
     const stats = srsData[text];
-    if (!stats) return baseSpeed * 1.1; // Slightly faster if never encountered
-
     let multiplier = 1.0;
-    
-    // High average reaction time -> slower (easier)
-    if (stats.avgTime > 2000) {
-      multiplier -= 0.3;
-    } else if (stats.avgTime < 1000) {
-      multiplier += 0.3; // Fast reaction -> faster (harder)
+
+    if (!stats) {
+      multiplier += 0.1; // Slightly faster if never encountered
+    } else {
+      // High average reaction time (> 3s) -> slower (easier)
+      if (stats.avgTime > 3000) {
+        multiplier -= 0.3;
+      } else {
+        multiplier += 0.3; // Fast reaction (< 3s) -> faster (harder)
+      }
+
+      // Encountered many times -> slower
+      if (stats.count > 5) {
+        multiplier -= 0.2;
+      } else if (stats.count < 2) {
+        multiplier += 0.2;
+      }
     }
 
-    // Encountered many times -> slower
-    if (stats.count > 5) {
-      multiplier -= 0.2;
-    } else if (stats.count < 2) {
-      multiplier += 0.2;
+    if (isProgressive) {
+      // Increase speed by 10% for every 50 points
+      const scoreMultiplier = 1 + Math.floor(currentScore / 50) * 0.1;
+      multiplier *= scoreMultiplier;
     }
 
     // Clamp to reasonable limits so it doesn't stop or go impossibly fast
-    multiplier = Math.max(0.5, Math.min(1.6, multiplier));
-    return baseSpeed * multiplier;
+    return Math.max(0.3, Math.min(3.0, baseSpeed * multiplier));
   };
 
   // Spawner (Waterfall)
@@ -197,7 +207,7 @@ export default function GameView() {
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: getDynamicSpeed(randomItem.c, baseSpeed),
+        speed: getDynamicSpeed(randomItem.c, baseSpeed, score),
         spawnTime: Date.now()
       };
       setFallingItems(prev => [...prev, newItem]);
@@ -205,7 +215,7 @@ export default function GameView() {
 
     const interval = setInterval(spawnItem, spawnRate);
     return () => clearInterval(interval);
-  }, [gameState, difficulty, dropMode, srsData]);
+  }, [gameState, difficulty, dropMode, srsData, score, isProgressive]);
 
   // Spawner (Single)
   useEffect(() => {
@@ -220,12 +230,12 @@ export default function GameView() {
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: getDynamicSpeed(randomItem.c, baseSpeed),
+        speed: getDynamicSpeed(randomItem.c, baseSpeed, score),
         spawnTime: Date.now()
       };
       setFallingItems([newItem]);
     }
-  }, [gameState, difficulty, dropMode, fallingItems.length, srsData]);
+  }, [gameState, difficulty, dropMode, fallingItems.length, srsData, score, isProgressive]);
 
   // Handle Game Over
   useEffect(() => {
@@ -367,6 +377,19 @@ export default function GameView() {
           </div>
         </div>
 
+        <div className="bg-[#1A1D24] p-5 rounded-[28px] shadow-sm mb-3">
+          <div className="flex justify-between items-center">
+            <label className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Progressive Speed</label>
+            <button
+              onClick={() => { playClick(); setIsProgressive(!isProgressive); }}
+              className={`w-12 h-6 rounded-full transition-colors relative ${isProgressive ? 'bg-cyan-500' : 'bg-[#222630]'}`}
+            >
+              <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${isProgressive ? 'left-7' : 'left-1'}`} />
+            </button>
+          </div>
+          <p className="text-[10px] text-zinc-500 mt-2">Speed increases as your score goes up!</p>
+        </div>
+
         <div className="flex justify-center mb-4">
           <div className="bg-amber-500/10 text-amber-500 px-4 py-2 rounded-full font-bold font-mono inline-flex items-center gap-2 text-sm">
             <Trophy className="w-4 h-4" /> High Score: {highScore}
@@ -422,6 +445,12 @@ export default function GameView() {
         </div>
         <div className="text-xl font-black text-cyan-400 font-mono">{score}</div>
       </div>
+
+      {/* Danger Line */}
+      <div 
+        className="absolute left-0 right-0 h-0.5 bg-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.8)] z-0" 
+        style={{ top: `${DANGER_LINE_Y}%` }}
+      ></div>
 
       {/* Falling Items */}
       <div className="flex-1 relative w-full">
