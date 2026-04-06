@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Rocket, Heart, Trophy, X, Play } from 'lucide-react';
+import { Rocket, Heart, Trophy, X, Play, BarChart2 } from 'lucide-react';
+import { Preferences } from '@capacitor/preferences';
 import { RAW_DATA } from '../data';
 import { playCorrect, playIncorrect, playClick } from '../utils/audio';
 import { speak } from '../utils/tts';
 
-type GameState = 'menu' | 'playing' | 'gameover';
+type GameState = 'menu' | 'playing' | 'gameover' | 'stats';
 type Difficulty = 'easy' | 'medium' | 'hard';
 type DropMode = 'waterfall' | 'single';
 
@@ -16,6 +17,14 @@ type FallingItem = {
   x: number;
   y: number;
   speed: number;
+  spawnTime: number;
+};
+
+type SRSData = {
+  [text: string]: {
+    avgTime: number;
+    count: number;
+  };
 };
 
 export default function GameView() {
@@ -27,6 +36,7 @@ export default function GameView() {
   const [lives, setLives] = useState(3);
   const [fallingItems, setFallingItems] = useState<FallingItem[]>([]);
   const [input, setInput] = useState('');
+  const [srsData, setSrsData] = useState<SRSData>({});
   const inputRef = useRef<HTMLInputElement>(null);
   const penalizedIds = useRef<Set<string>>(new Set());
 
@@ -34,7 +44,41 @@ export default function GameView() {
 
   useEffect(() => {
     setHighScore(parseInt(localStorage.getItem('kn_game_highscore') || '0', 10));
+    loadSRSData();
   }, []);
+
+  const loadSRSData = async () => {
+    try {
+      const { value } = await Preferences.get({ key: 'kn_srs_data' });
+      if (value) {
+        setSrsData(JSON.parse(value));
+      }
+    } catch (e) {
+      console.error('Failed to load SRS data', e);
+    }
+  };
+
+  const saveSRSData = async (newData: SRSData) => {
+    setSrsData(newData);
+    try {
+      await Preferences.set({ key: 'kn_srs_data', value: JSON.stringify(newData) });
+    } catch (e) {
+      console.error('Failed to save SRS data', e);
+    }
+  };
+
+  const updateSRS = (text: string, reactionTime: number) => {
+    const current = srsData[text] || { avgTime: 0, count: 0 };
+    const newCount = current.count + 1;
+    // Calculate new moving average
+    const newAvgTime = ((current.avgTime * current.count) + reactionTime) / newCount;
+    
+    const newData = {
+      ...srsData,
+      [text]: { avgTime: newAvgTime, count: newCount }
+    };
+    saveSRSData(newData);
+  };
 
   const startGame = () => {
     playClick();
@@ -61,6 +105,8 @@ export default function GameView() {
           if (newY > 100 && !penalizedIds.current.has(item.id)) {
             missedItems.push(item);
             penalizedIds.current.add(item.id);
+            // Penalize missed items by adding a high reaction time (e.g., 10 seconds)
+            updateSRS(item.text, 10000);
           }
           return { ...item, y: newY };
         });
@@ -86,7 +132,29 @@ export default function GameView() {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [gameState]);
+  }, [gameState, srsData]);
+
+  const getRandomWeightedItem = () => {
+    // Calculate weights based on SRS data
+    // Higher avgTime = higher weight (more likely to spawn)
+    const weightedPool = pool.map(item => {
+      const stats = srsData[item.c];
+      // Base weight is 1. If avgTime is 3000ms, weight is 1 + (3000/1000) = 4
+      const weight = stats ? 1 + (stats.avgTime / 1000) : 1;
+      return { item, weight };
+    });
+
+    const totalWeight = weightedPool.reduce((sum, w) => sum + w.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const w of weightedPool) {
+      random -= w.weight;
+      if (random <= 0) {
+        return w.item;
+      }
+    }
+    return pool[Math.floor(Math.random() * pool.length)]; // Fallback
+  };
 
   // Spawner (Waterfall)
   useEffect(() => {
@@ -95,39 +163,41 @@ export default function GameView() {
     const spawnRate = difficulty === 'easy' ? 2000 : difficulty === 'medium' ? 1200 : 800;
     
     const spawnItem = () => {
-      const randomItem = pool[Math.floor(Math.random() * pool.length)];
+      const randomItem = getRandomWeightedItem();
       const newItem: FallingItem = {
         id: Math.random().toString(36).substr(2, 9),
         text: randomItem.c,
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2
+        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2,
+        spawnTime: Date.now()
       };
       setFallingItems(prev => [...prev, newItem]);
     };
 
     const interval = setInterval(spawnItem, spawnRate);
     return () => clearInterval(interval);
-  }, [gameState, difficulty, dropMode]);
+  }, [gameState, difficulty, dropMode, srsData]);
 
   // Spawner (Single)
   useEffect(() => {
     if (gameState !== 'playing' || dropMode !== 'single') return;
 
     if (fallingItems.length === 0) {
-      const randomItem = pool[Math.floor(Math.random() * pool.length)];
+      const randomItem = getRandomWeightedItem();
       const newItem: FallingItem = {
         id: Math.random().toString(36).substr(2, 9),
         text: randomItem.c,
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2
+        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2,
+        spawnTime: Date.now()
       };
       setFallingItems([newItem]);
     }
-  }, [gameState, difficulty, dropMode, fallingItems.length]);
+  }, [gameState, difficulty, dropMode, fallingItems.length, srsData]);
 
   // Handle Game Over
   useEffect(() => {
@@ -147,8 +217,12 @@ export default function GameView() {
 
     const hitIndex = fallingItems.findIndex(item => item.answer === val);
     if (hitIndex !== -1) {
+      const hitItem = fallingItems[hitIndex];
+      const reactionTime = Date.now() - hitItem.spawnTime;
+      updateSRS(hitItem.text, reactionTime);
+
       playCorrect();
-      speak(fallingItems[hitIndex].text);
+      speak(hitItem.text);
       setScore(s => s + 10);
       setInput('');
       setFallingItems(items => items.filter((_, i) => i !== hitIndex));
@@ -160,10 +234,64 @@ export default function GameView() {
     }
   };
 
+  if (gameState === 'stats') {
+    const sortedStats = Object.entries(srsData)
+      .sort(([, a], [, b]) => b.avgTime - a.avgTime);
+
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full px-4 pb-4">
+        <div className="flex items-center justify-between mb-6 mt-2">
+          <h2 className="text-2xl font-black text-zinc-100 tracking-tight">Weakness Tracker</h2>
+          <button onClick={() => { playClick(); setGameState('menu'); }} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-100">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <p className="text-sm text-zinc-500 mb-4">Kana that take longer to type will drop more frequently to help you practice.</p>
+
+        <div className="flex-1 overflow-y-auto bg-[#1A1D24] rounded-[28px] p-4 shadow-sm">
+          {sortedStats.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-zinc-500">
+              <BarChart2 className="w-12 h-12 mb-3 opacity-20" />
+              <p>Play a game to see your stats!</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {sortedStats.map(([kana, stats]) => (
+                <div key={kana} className="flex items-center justify-between bg-[#222630] p-3 rounded-xl">
+                  <div className="flex items-center gap-4">
+                    <span className="text-2xl font-black text-cyan-400 font-jp w-8 text-center">{kana}</span>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-zinc-400">Avg. Reaction</span>
+                      <span className={`text-sm font-bold ${stats.avgTime > 3000 ? 'text-red-400' : stats.avgTime > 1500 ? 'text-amber-400' : 'text-green-400'}`}>
+                        {(stats.avgTime / 1000).toFixed(2)}s
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-zinc-500">Encounters</span>
+                    <span className="text-sm font-bold text-zinc-300">{stats.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
   if (gameState === 'menu') {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-6 max-w-sm mx-auto px-4 pb-4">
-        <div className="text-center mb-4">
+        <div className="text-center mb-4 relative">
+          <button 
+            onClick={() => { playClick(); setGameState('stats'); }}
+            className="absolute right-0 top-0 p-2 bg-[#1A1D24] rounded-full text-cyan-400 hover:bg-[#222630] transition-colors"
+            title="Weakness Tracker"
+          >
+            <BarChart2 className="w-5 h-5" />
+          </button>
           <div className="w-24 h-24 bg-[#1A1D24] rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-50"></div>
             <Rocket className="w-12 h-12 text-cyan-400 relative z-10" />
