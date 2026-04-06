@@ -18,6 +18,7 @@ type FallingItem = {
   y: number;
   speed: number;
   spawnTime: number;
+  hit?: boolean;
 };
 
 type SRSData = {
@@ -215,7 +216,7 @@ export default function GameView() {
 
     if (val === '') return;
 
-    const hitIndex = fallingItems.findIndex(item => item.answer === val);
+    const hitIndex = fallingItems.findIndex(item => item.answer === val && !item.hit);
     if (hitIndex !== -1) {
       const hitItem = fallingItems[hitIndex];
       const reactionTime = Date.now() - hitItem.spawnTime;
@@ -225,9 +226,18 @@ export default function GameView() {
       speak(hitItem.text);
       setScore(s => s + 10);
       setInput('');
-      setFallingItems(items => items.filter((_, i) => i !== hitIndex));
+      
+      // Mark as hit to show romaji
+      setFallingItems(items => items.map((item, i) => 
+        i === hitIndex ? { ...item, hit: true, speed: 0 } : item
+      ));
+
+      // Remove after 500ms
+      setTimeout(() => {
+        setFallingItems(items => items.filter(item => item.id !== hitItem.id));
+      }, 500);
     } else {
-      const isPrefix = fallingItems.some(item => item.answer.startsWith(val));
+      const isPrefix = fallingItems.some(item => !item.hit && item.answer.startsWith(val));
       if (!isPrefix && fallingItems.length > 0) {
         setInput('');
       }
@@ -393,16 +403,21 @@ export default function GameView() {
             <motion.div
               key={item.id}
               initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ 
+                opacity: item.hit ? 0 : 1, 
+                scale: item.hit ? 1.5 : 1,
+                color: item.hit ? '#4ade80' : '#f4f4f5' // green-400 when hit
+              }}
+              transition={{ duration: item.hit ? 0.5 : 0.2 }}
               exit={{ opacity: 0, scale: 1.5 }}
-              className="absolute text-4xl font-black text-zinc-100 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] font-jp"
+              className={`absolute text-4xl font-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] ${item.hit ? 'font-sans' : 'font-jp'}`}
               style={{ 
                 left: `${item.x}%`, 
                 top: `${item.y}%`, 
                 transform: 'translate(-50%, -50%)' 
               }}
             >
-              {item.text}
+              {item.hit ? item.answer : item.text}
             </motion.div>
           ))}
         </AnimatePresence>

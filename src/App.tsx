@@ -5,7 +5,7 @@
 
 import { useState, useEffect, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Book, Layers, Gamepad2, Clock, Settings, Flame, CalendarDays, Rocket } from 'lucide-react';
+import { Book, Layers, Gamepad2, Clock, Settings, Flame, CalendarDays, Rocket, PenTool } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { NavigationBar } from '@capgo/capacitor-navigation-bar';
@@ -13,6 +13,7 @@ import LearnView from './views/LearnView';
 import PracticeView from './views/PracticeView';
 import QuizView from './views/QuizView';
 import GameView from './views/GameView';
+import DrawView from './views/DrawView';
 import TimeView from './views/TimeView';
 import DateView from './views/DateView';
 import SettingsView from './views/SettingsView';
@@ -20,7 +21,7 @@ import OnboardingView from './views/OnboardingView';
 import SplashView from './views/SplashView';
 import { playClick } from './utils/audio';
 
-export type ViewState = 'splash' | 'onboarding' | 'learn' | 'practice' | 'quiz' | 'game' | 'time' | 'date' | 'settings';
+export type ViewState = 'splash' | 'onboarding' | 'learn' | 'practice' | 'quiz' | 'game' | 'draw' | 'time' | 'date' | 'settings';
 
 export default function App() {
   const [view, setView] = useState<ViewState>('splash');
@@ -106,6 +107,7 @@ export default function App() {
           {view === 'practice' && <PracticeView key="practice" />}
           {view === 'quiz' && <QuizView key="quiz" setStreak={setStreak} />}
           {view === 'game' && <GameView key="game" />}
+          {view === 'draw' && <DrawView key="draw" />}
           {view === 'time' && <TimeView key="time" />}
           {view === 'date' && <DateView key="date" />}
           {view === 'settings' && <SettingsView key="settings" />}
@@ -118,6 +120,7 @@ export default function App() {
           <NavItem icon={<Layers />} label="Practice" active={view === 'practice'} onClick={() => setView('practice')} />
           <NavItem icon={<Gamepad2 />} label="Quiz" active={view === 'quiz'} onClick={() => setView('quiz')} />
           <NavItem icon={<Rocket />} label="Game" active={view === 'game'} onClick={() => setView('game')} />
+          <NavItem icon={<PenTool />} label="Draw" active={view === 'draw'} onClick={() => setView('draw')} />
           <NavItem icon={<Clock />} label="Time" active={view === 'time'} onClick={() => setView('time')} />
           <NavItem icon={<CalendarDays />} label="Date" active={view === 'date'} onClick={() => setView('date')} />
           <NavItem icon={<Settings />} label="Set" active={view === 'settings'} onClick={() => setView('settings')} />

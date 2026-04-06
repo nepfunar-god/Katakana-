@@ -14,7 +14,7 @@ export const RAW_DATA = {
   dakuten: [
     {id:'ga',c:'ガ',r:'ga'}, {id:'gi',c:'ギ',r:'gi'}, {id:'gu',c:'グ',r:'gu'}, {id:'ge',c:'ゲ',r:'ge'}, {id:'go',c:'ゴ',r:'go'},
     {id:'za',c:'ザ',r:'za'}, {id:'ji',c:'ジ',r:'ji'}, {id:'zu',c:'ズ',r:'zu'}, {id:'ze',c:'ゼ',r:'ze'}, {id:'zo',c:'ゾ',r:'zo'},
-    {id:'da',c:'ダ',r:'da'}, {id:'de',c:'デ',r:'de'}, {id:'do',c:'ド',r:'do'},
+    {id:'da',c:'ダ',r:'da'}, {id:'dji',c:'ヂ',r:'ji'}, {id:'dzu',c:'ヅ',r:'zu'}, {id:'de',c:'デ',r:'de'}, {id:'do',c:'ド',r:'do'},
     {id:'ba',c:'バ',r:'ba'}, {id:'bi',c:'ビ',r:'bi'}, {id:'bu',c:'ブ',r:'bu'}, {id:'be',c:'ベ',r:'be'}, {id:'bo',c:'ボ',r:'bo'}
   ],
   handakuten: [
