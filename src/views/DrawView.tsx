@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { RefreshCw, Trash2, CheckCircle2 } from 'lucide-react';
 import { RAW_DATA } from '../data';
 import { playClick } from '../utils/audio';

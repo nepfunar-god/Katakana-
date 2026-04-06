@@ -157,6 +157,31 @@ export default function GameView() {
     return pool[Math.floor(Math.random() * pool.length)]; // Fallback
   };
 
+  const getDynamicSpeed = (text: string, baseSpeed: number) => {
+    const stats = srsData[text];
+    if (!stats) return baseSpeed * 1.1; // Slightly faster if never encountered
+
+    let multiplier = 1.0;
+    
+    // High average reaction time -> slower (easier)
+    if (stats.avgTime > 2000) {
+      multiplier -= 0.3;
+    } else if (stats.avgTime < 1000) {
+      multiplier += 0.3; // Fast reaction -> faster (harder)
+    }
+
+    // Encountered many times -> slower
+    if (stats.count > 5) {
+      multiplier -= 0.2;
+    } else if (stats.count < 2) {
+      multiplier += 0.2;
+    }
+
+    // Clamp to reasonable limits so it doesn't stop or go impossibly fast
+    multiplier = Math.max(0.5, Math.min(1.6, multiplier));
+    return baseSpeed * multiplier;
+  };
+
   // Spawner (Waterfall)
   useEffect(() => {
     if (gameState !== 'playing' || dropMode !== 'waterfall') return;
@@ -165,13 +190,14 @@ export default function GameView() {
     
     const spawnItem = () => {
       const randomItem = getRandomWeightedItem();
+      const baseSpeed = difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2;
       const newItem: FallingItem = {
         id: Math.random().toString(36).substr(2, 9),
         text: randomItem.c,
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2,
+        speed: getDynamicSpeed(randomItem.c, baseSpeed),
         spawnTime: Date.now()
       };
       setFallingItems(prev => [...prev, newItem]);
@@ -187,13 +213,14 @@ export default function GameView() {
 
     if (fallingItems.length === 0) {
       const randomItem = getRandomWeightedItem();
+      const baseSpeed = difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2;
       const newItem: FallingItem = {
         id: Math.random().toString(36).substr(2, 9),
         text: randomItem.c,
         answer: randomItem.r.toLowerCase(),
         x: Math.random() * 80 + 10, // 10% to 90%
         y: -10,
-        speed: difficulty === 'easy' ? 0.4 : difficulty === 'medium' ? 0.7 : 1.2,
+        speed: getDynamicSpeed(randomItem.c, baseSpeed),
         spawnTime: Date.now()
       };
       setFallingItems([newItem]);
