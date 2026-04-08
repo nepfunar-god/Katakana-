@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Volume2, BookOpen } from 'lucide-react';
+import { Volume2, BookOpen, Settings2, X } from 'lucide-react';
 import { TIME_DATA } from '../data';
 import { speak } from '../utils/tts';
 import { playCorrect, playIncorrect, playClick } from '../utils/audio';
@@ -15,6 +15,17 @@ export default function TimeView() {
   const [showRef, setShowRef] = useState(false);
   const [typeInput, setTypeInput] = useState('');
   const [flashOpt, setFlashOpt] = useState<{opt: string, isCorrect: boolean} | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [requireAmPm, setRequireAmPmState] = useState<boolean>(() => {
+    return localStorage.getItem('time_require_ampm') !== 'false';
+  });
+  const requireAmPmRef = useRef(requireAmPm);
+  const setRequireAmPm = (val: boolean) => {
+    setRequireAmPmState(val);
+    requireAmPmRef.current = val;
+    localStorage.setItem('time_require_ampm', val.toString());
+    generateQuestion();
+  };
   const [scriptFormat, setScriptFormatState] = useState<'random' | 'romaji' | 'hiragana' | 'kanji'>(() => {
     return (localStorage.getItem('time_script_fmt') as any) || 'random';
   });
@@ -53,6 +64,7 @@ export default function TimeView() {
   };
 
   const generateQuestion = (fmt?: string) => {
+    const reqAmPm = requireAmPmRef.current;
     const h = Math.floor(Math.random() * 12) + 1;
     const m = Math.floor(Math.random() * 60);
     const isPm = Math.random() < 0.5;
@@ -63,16 +75,22 @@ export default function TimeView() {
     const hD = TIME_DATA.hours[h as keyof typeof TIME_DATA.hours];
     const mD = getMinStr(m);
     
-    const cR = `${perR} ${hD.r} ${mD.r}`.trim();
-    const cH = `${perH}${hD.h}${mD.h}`;
-    const cK = `${perK}${hD.k}${mD.k}`;
+    const cR = reqAmPm ? `${perR} ${hD.r} ${mD.r}`.trim() : `${hD.r} ${mD.r}`.trim();
+    const cH = reqAmPm ? `${perH}${hD.h}${mD.h}` : `${hD.h}${mD.h}`;
+    const cK = reqAmPm ? `${perK}${hD.k}${mD.k}` : `${hD.k}${mD.k}`;
     let alts = [];
-    if (m === 30) alts.push(`${perR} ${hD.r} han`, `${perH}${hD.h}はん`, `${perK}${hD.k}半`);
+    if (m === 30) {
+      if (reqAmPm) {
+        alts.push(`${perR} ${hD.r} han`, `${perH}${hD.h}はん`, `${perK}${hD.k}半`);
+      } else {
+        alts.push(`${hD.r} han`, `${hD.h}はん`, `${hD.k}半`);
+      }
+    }
 
     const qData = {
-      display: `${h}:${m < 10 ? '0' + m : m} ${isPm ? 'PM' : 'AM'}`,
+      display: reqAmPm ? `${h}:${m < 10 ? '0' + m : m} ${isPm ? 'PM' : 'AM'}` : `${h}:${m < 10 ? '0' + m : m}`,
       correctR: cR, correctH: cH, correctK: cK,
-      audio: cK,
+      audio: reqAmPm ? cK : `${hD.k}${mD.k}`,
       valids: [cR, cH, cK, ...alts]
     };
     setQuestion(qData);
@@ -101,9 +119,9 @@ export default function TimeView() {
       const rmD = getMinStr(rm);
       
       let s = "";
-      if (formatType === 0) s = `${rper} ${rhD.r} ${rmD.r}`.trim();
-      else if (formatType === 1) s = `${rperH}${rhD.h}${rmD.h}`;
-      else s = `${rperK}${rhD.k}${rmD.k}`;
+      if (formatType === 0) s = reqAmPm ? `${rper} ${rhD.r} ${rmD.r}`.trim() : `${rhD.r} ${rmD.r}`.trim();
+      else if (formatType === 1) s = reqAmPm ? `${rperH}${rhD.h}${rmD.h}` : `${rhD.h}${rmD.h}`;
+      else s = reqAmPm ? `${rperK}${rhD.k}${rmD.k}` : `${rhD.k}${rmD.k}`;
 
       if (!opts.includes(s) && !qData.valids.includes(s)) opts.push(s);
     }
@@ -137,10 +155,42 @@ export default function TimeView() {
     setHistory(prev => [{ display: question.display, isC, ans, correctR: question.correctR }, ...prev].slice(0, 10));
   };
 
+  if (showSettings) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col w-full max-w-sm mx-auto px-4 h-full pt-4 pb-4">
+        <div className="flex items-center justify-between mb-6 mt-2">
+          <h2 className="text-2xl font-black text-zinc-100 tracking-tight">Time Settings</h2>
+          <button onClick={() => { playClick(); setShowSettings(false); }} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-100">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="bg-[#1A1D24] p-5 rounded-2xl shadow-sm mb-3">
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Require AM/PM (Gozen/Gogo)</label>
+            <button
+              onClick={() => { playClick(); setRequireAmPm(!requireAmPm); }}
+              className={`w-12 h-6 rounded-full transition-colors relative ${requireAmPm ? 'bg-cyan-500' : 'bg-[#222630]'}`}
+            >
+              <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${requireAmPm ? 'left-7' : 'left-1'}`} />
+            </button>
+          </div>
+          <p className="text-[10px] text-zinc-500">If enabled, you must include gozen (AM) or gogo (PM) in your answers.</p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col w-full max-w-sm mx-auto px-4 h-full pt-4 pb-4">
-      <div className="bg-[#1A1D24] p-4 rounded-[20px] shadow-sm mb-4">
-        <div className="flex justify-between items-end mb-2 font-bold">
+      <div className="bg-[#1A1D24] p-4 rounded-[20px] shadow-sm mb-4 relative">
+        <button 
+          onClick={() => { playClick(); setShowSettings(true); }}
+          className="absolute right-4 top-4 text-zinc-400 hover:text-zinc-100 transition-colors"
+        >
+          <Settings2 className="w-5 h-5" />
+        </button>
+        <div className="flex justify-between items-end mb-2 font-bold pr-8">
           <span className="text-cyan-400 text-xs tracking-widest uppercase">Level {level}</span>
           <span className="text-zinc-500 text-xs uppercase tracking-wider">{xp} / 100 XP</span>
         </div>
@@ -201,7 +251,7 @@ export default function TimeView() {
             value={typeInput}
             onChange={e => setTypeInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAnswer(typeInput)}
-            placeholder="e.g. gozen kuji, 午前九時" 
+            placeholder={requireAmPm ? "e.g. gozen kuji, 午前九時" : "e.g. kuji, 九時"} 
             autoComplete="off" 
             className="w-full p-3 text-center bg-[#1A1D24] rounded-[16px] text-zinc-100 outline-none focus:ring-1 focus:ring-cyan-500/50 mb-3 shadow-sm placeholder:text-zinc-600 font-medium text-sm"
           />

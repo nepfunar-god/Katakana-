@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef, ChangeEvent, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Rocket, Heart, Trophy, X, Play, BarChart2 } from 'lucide-react';
+import { Rocket, Heart, Trophy, X, Play, BarChart2, Settings2, Check } from 'lucide-react';
 import { Preferences } from '@capacitor/preferences';
 import { RAW_DATA } from '../data';
 import { playCorrect, playIncorrect, playClick } from '../utils/audio';
 import { speak } from '../utils/tts';
 
-type GameState = 'menu' | 'playing' | 'gameover' | 'stats';
+type GameState = 'menu' | 'playing' | 'gameover' | 'stats' | 'settings' | 'custom_katakana_select' | 'custom_hiragana_select';
 type Difficulty = 'easy' | 'medium' | 'hard';
 type DropMode = 'waterfall' | 'single';
+type AlphabetMode = 'katakana' | 'hiragana' | 'custom_katakana' | 'custom_hiragana';
 
 type FallingItem = {
   id: string;
@@ -31,7 +32,8 @@ type SRSData = {
 export default function GameView() {
   const [gameState, setGameState] = useState<GameState>('menu');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
-  const [dropMode, setDropMode] = useState<DropMode>('waterfall');
+  const [dropMode, setDropMode] = useState<DropMode>('single');
+  const [alphabetMode, setAlphabetMode] = useState<AlphabetMode>('katakana');
   const [isProgressive, setIsProgressive] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
@@ -39,15 +41,39 @@ export default function GameView() {
   const [fallingItems, setFallingItems] = useState<FallingItem[]>([]);
   const [input, setInput] = useState('');
   const [srsData, setSrsData] = useState<SRSData>({});
+  const [customKatakanaSelection, setCustomKatakanaSelection] = useState<string[]>([]);
+  const [customHiraganaSelection, setCustomHiraganaSelection] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const penalizedIds = useRef<Set<string>>(new Set());
 
-  const pool = [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten].filter(item => !item.empty);
+  const allKatakana = useMemo(() => [...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten].filter(item => !item.empty), []);
+  const allHiragana = useMemo(() => [...RAW_DATA.h_basic, ...RAW_DATA.h_dakuten, ...RAW_DATA.h_handakuten].filter(item => !item.empty), []);
+  const allKana = useMemo(() => [...allKatakana, ...allHiragana], [allKatakana, allHiragana]);
+
+  const pool = useMemo(() => {
+    if (alphabetMode === 'katakana') return allKatakana;
+    if (alphabetMode === 'hiragana') return allHiragana;
+    if (alphabetMode === 'custom_katakana' && customKatakanaSelection.length > 0) {
+      return allKatakana.filter(item => customKatakanaSelection.includes(item.id));
+    }
+    if (alphabetMode === 'custom_hiragana' && customHiraganaSelection.length > 0) {
+      return allHiragana.filter(item => customHiraganaSelection.includes(item.id));
+    }
+    return allKatakana; // fallback
+  }, [alphabetMode, customKatakanaSelection, customHiraganaSelection, allKatakana, allHiragana]);
 
   const DANGER_LINE_Y = 82; // 82% of screen height
 
   useEffect(() => {
     setHighScore(parseInt(localStorage.getItem('kn_game_highscore') || '0', 10));
+    const savedCustomK = localStorage.getItem('kn_custom_katakana');
+    if (savedCustomK) {
+      setCustomKatakanaSelection(JSON.parse(savedCustomK));
+    }
+    const savedCustomH = localStorage.getItem('kn_custom_hiragana');
+    if (savedCustomH) {
+      setCustomHiraganaSelection(JSON.parse(savedCustomH));
+    }
     loadSRSData();
   }, []);
 
@@ -86,6 +112,14 @@ export default function GameView() {
 
   const startGame = () => {
     playClick();
+    if (alphabetMode === 'custom_katakana' && customKatakanaSelection.length === 0) {
+      alert("Please select at least one Katakana for Custom mode.");
+      return;
+    }
+    if (alphabetMode === 'custom_hiragana' && customHiraganaSelection.length === 0) {
+      alert("Please select at least one Hiragana for Custom mode.");
+      return;
+    }
     setScore(0);
     setLives(3);
     setFallingItems([]);
@@ -95,6 +129,18 @@ export default function GameView() {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
+  };
+
+  const handleQuitGame = () => {
+    playClick();
+    const now = Date.now();
+    fallingItems.forEach(item => {
+      if (!item.hit && !penalizedIds.current.has(item.id)) {
+        const reactionTime = now - item.spawnTime;
+        updateSRS(item.text, reactionTime);
+      }
+    });
+    setGameState('gameover');
   };
 
   // Game Loop
@@ -216,7 +262,7 @@ export default function GameView() {
 
     const interval = setInterval(spawnItem, spawnRate);
     return () => clearInterval(interval);
-  }, [gameState, difficulty, dropMode, srsData, score, isProgressive]);
+  }, [gameState, difficulty, dropMode, srsData, score, isProgressive, pool]);
 
   // Spawner (Single)
   useEffect(() => {
@@ -236,7 +282,7 @@ export default function GameView() {
       };
       setFallingItems([newItem]);
     }
-  }, [gameState, difficulty, dropMode, fallingItems.length, srsData, score, isProgressive]);
+  }, [gameState, difficulty, dropMode, fallingItems.length, srsData, score, isProgressive, pool]);
 
   // Handle Game Over
   useEffect(() => {
@@ -281,6 +327,106 @@ export default function GameView() {
       }
     }
   };
+
+  const toggleCustomKatakana = (id: string) => {
+    playClick();
+    setCustomKatakanaSelection(prev => {
+      const newSel = prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id];
+      localStorage.setItem('kn_custom_katakana', JSON.stringify(newSel));
+      return newSel;
+    });
+  };
+
+  const toggleCustomHiragana = (id: string) => {
+    playClick();
+    setCustomHiraganaSelection(prev => {
+      const newSel = prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id];
+      localStorage.setItem('kn_custom_hiragana', JSON.stringify(newSel));
+      return newSel;
+    });
+  };
+
+  if (gameState === 'custom_katakana_select' || gameState === 'custom_hiragana_select') {
+    const isKata = gameState === 'custom_katakana_select';
+    const title = isKata ? 'Select Custom Katakana' : 'Select Custom Hiragana';
+    const allItems = isKata ? allKatakana : allHiragana;
+    const selection = isKata ? customKatakanaSelection : customHiraganaSelection;
+    const toggleFn = isKata ? toggleCustomKatakana : toggleCustomHiragana;
+    const storageKey = isKata ? 'kn_custom_katakana' : 'kn_custom_hiragana';
+    const setSelection = isKata ? setCustomKatakanaSelection : setCustomHiraganaSelection;
+
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full px-4 pb-4">
+        <div className="flex items-center justify-between mb-4 mt-2">
+          <h2 className="text-xl font-black text-zinc-100 tracking-tight">{title}</h2>
+          <button onClick={() => { playClick(); setGameState('menu'); }} className="w-8 h-8 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-100">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex gap-2 mb-4">
+          <button onClick={() => { playClick(); setSelection(allItems.map(k => k.id)); localStorage.setItem(storageKey, JSON.stringify(allItems.map(k => k.id))); }} className="flex-1 py-2 bg-[#222630] rounded-xl text-xs font-bold text-zinc-300">Select All</button>
+          <button onClick={() => { playClick(); setSelection([]); localStorage.setItem(storageKey, JSON.stringify([])); }} className="flex-1 py-2 bg-[#222630] rounded-xl text-xs font-bold text-zinc-300">Clear All</button>
+        </div>
+        <div className="flex-1 overflow-y-auto bg-[#1A1D24] rounded-[24px] p-4 shadow-sm">
+          <div className="grid grid-cols-5 gap-2">
+            {allItems.map(item => (
+              <button
+                key={item.id}
+                onClick={() => toggleFn(item.id)}
+                className={`aspect-square rounded-xl flex flex-col items-center justify-center transition-all relative ${selection.includes(item.id) ? 'bg-cyan-500/20 ring-1 ring-cyan-500' : 'bg-[#222630] text-zinc-400'}`}
+              >
+                <span className={`text-xl font-bold font-jp ${selection.includes(item.id) ? 'text-cyan-400' : 'text-zinc-300'}`}>{item.c}</span>
+                <span className="text-[10px] font-mono">{item.r}</span>
+                {selection.includes(item.id) && <Check className="w-3 h-3 text-cyan-400 absolute top-1 right-1" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  if (gameState === 'settings') {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full px-4 pb-4">
+        <div className="flex items-center justify-between mb-6 mt-2">
+          <h2 className="text-2xl font-black text-zinc-100 tracking-tight">Game Settings</h2>
+          <button onClick={() => { playClick(); setGameState('menu'); }} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-zinc-100">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="bg-[#1A1D24] p-5 rounded-2xl shadow-sm mb-3">
+          <label className="block text-xs text-zinc-500 uppercase font-bold tracking-wider mb-3">Drop Mode</label>
+          <div className="flex gap-2">
+            {(['waterfall', 'single'] as DropMode[]).map(m => (
+              <button 
+                key={m} 
+                onClick={() => { playClick(); setDropMode(m); }}
+                className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all capitalize active:scale-95 ${dropMode === m ? 'bg-purple-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-zinc-500 mt-2">Waterfall drops multiple kana. Single drops one at a time.</p>
+        </div>
+
+        <div className="bg-[#1A1D24] p-5 rounded-2xl shadow-sm mb-3">
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-xs text-zinc-500 uppercase font-bold tracking-wider">Progressive Speed</label>
+            <button
+              onClick={() => { playClick(); setIsProgressive(!isProgressive); }}
+              className={`w-12 h-6 rounded-full transition-colors relative ${isProgressive ? 'bg-cyan-500' : 'bg-[#222630]'}`}
+            >
+              <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${isProgressive ? 'left-7' : 'left-1'}`} />
+            </button>
+          </div>
+          <p className="text-[10px] text-zinc-500">Speed increases as your score goes up, ignoring SRS data.</p>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (gameState === 'stats') {
     const sortedStats = Object.entries(srsData)
@@ -334,6 +480,13 @@ export default function GameView() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col h-full justify-center gap-3 max-w-sm mx-auto px-4 pb-2">
         <div className="text-center mb-2 relative mt-2">
           <button 
+            onClick={() => { playClick(); setGameState('settings'); }}
+            className="absolute left-0 top-0 p-2 bg-[#1A1D24] rounded-full text-zinc-400 hover:bg-[#222630] hover:text-zinc-100 transition-colors"
+            title="Settings"
+          >
+            <Settings2 className="w-4 h-4" />
+          </button>
+          <button 
             onClick={() => { playClick(); setGameState('stats'); }}
             className="absolute right-0 top-0 p-2 bg-[#1A1D24] rounded-full text-cyan-400 hover:bg-[#222630] transition-colors"
             title="Weakness Tracker"
@@ -349,6 +502,26 @@ export default function GameView() {
         </div>
         
         <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-1">
+          <label className="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2 text-center">Alphabet</label>
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <button onClick={() => { playClick(); setAlphabetMode('katakana'); }} className={`py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${alphabetMode === 'katakana' ? 'bg-pink-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38]'}`}>Katakana</button>
+            <button onClick={() => { playClick(); setAlphabetMode('hiragana'); }} className={`py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${alphabetMode === 'hiragana' ? 'bg-pink-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38]'}`}>Hiragana</button>
+            <button onClick={() => { playClick(); setAlphabetMode('custom_katakana'); }} className={`py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${alphabetMode === 'custom_katakana' ? 'bg-pink-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38]'}`}>Custom Kata</button>
+            <button onClick={() => { playClick(); setAlphabetMode('custom_hiragana'); }} className={`py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${alphabetMode === 'custom_hiragana' ? 'bg-pink-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38]'}`}>Custom Hira</button>
+          </div>
+          {alphabetMode === 'custom_katakana' && (
+            <button onClick={() => { playClick(); setGameState('custom_katakana_select'); }} className="w-full py-2 bg-[#222630] text-cyan-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#2A2E38]">
+              <Settings2 className="w-3.5 h-3.5" /> Select Katakana ({customKatakanaSelection.length})
+            </button>
+          )}
+          {alphabetMode === 'custom_hiragana' && (
+            <button onClick={() => { playClick(); setGameState('custom_hiragana_select'); }} className="w-full py-2 bg-[#222630] text-cyan-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#2A2E38]">
+              <Settings2 className="w-3.5 h-3.5" /> Select Hiragana ({customHiraganaSelection.length})
+            </button>
+          )}
+        </div>
+
+        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-2">
           <label className="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2 text-center">Select Difficulty</label>
           <div className="flex gap-2">
             {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
@@ -361,34 +534,6 @@ export default function GameView() {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-1">
-          <label className="block text-[10px] text-zinc-500 uppercase font-bold tracking-wider mb-2 text-center">Drop Mode</label>
-          <div className="flex gap-2">
-            {(['waterfall', 'single'] as DropMode[]).map(m => (
-              <button 
-                key={m} 
-                onClick={() => { playClick(); setDropMode(m); }}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all capitalize active:scale-95 ${dropMode === m ? 'bg-purple-500 text-white shadow-md' : 'bg-[#222630] text-zinc-400 hover:bg-[#2A2E38] hover:text-zinc-200'}`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-[#1A1D24] p-4 rounded-2xl shadow-sm mb-2">
-          <div className="flex justify-between items-center">
-            <label className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">Progressive Speed</label>
-            <button
-              onClick={() => { playClick(); setIsProgressive(!isProgressive); }}
-              className={`w-10 h-5 rounded-full transition-colors relative ${isProgressive ? 'bg-cyan-500' : 'bg-[#222630]'}`}
-            >
-              <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-all ${isProgressive ? 'left-6' : 'left-1'}`} />
-            </button>
-          </div>
-          <p className="text-[9px] text-zinc-500 mt-1.5">Speed increases as your score goes up!</p>
         </div>
 
         <div className="flex justify-center mb-2">
@@ -447,7 +592,7 @@ export default function GameView() {
         <div className="flex items-center gap-4">
           <div className="text-xl font-black text-cyan-400 font-mono">{score}</div>
           <button 
-            onClick={() => { playClick(); setGameState('gameover'); }} 
+            onClick={handleQuitGame} 
             className="w-8 h-8 bg-[#1A1D24]/80 rounded-full flex items-center justify-center text-zinc-400 hover:text-white backdrop-blur-md active:scale-95 transition-all"
             title="Quit Game"
           >

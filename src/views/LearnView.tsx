@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Volume2, Check, X, PenTool, ChevronRight, ArrowLeft, Languages } from 'lucide-react';
+import { Search, Volume2, Check, X, PenTool, ChevronRight, ArrowLeft, Languages, Type } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { RAW_DATA } from '../data';
 import { speak } from '../utils/tts';
 import { playClick } from '../utils/audio';
 
-type FilterType = 'basic' | 'dakuten' | 'handakuten' | 'words';
+type MainCategory = 'hiragana' | 'katakana' | 'words' | null;
+type SubCategory = 'basic' | 'dakuten' | 'handakuten' | null;
 
 function DrawingCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -101,8 +102,9 @@ function DrawingCanvas() {
 }
 
 export default function LearnView() {
-  const [viewMode, setViewMode] = useState<'categories' | 'grid'>('categories');
-  const [filter, setFilter] = useState<FilterType>('basic');
+  const [viewMode, setViewMode] = useState<'main' | 'sub' | 'grid'>('main');
+  const [mainCat, setMainCat] = useState<MainCategory>(null);
+  const [subCat, setSubCat] = useState<SubCategory>(null);
   const [search, setSearch] = useState('');
   const [progress, setProgress] = useState<Record<string, any>>({});
   const [customWords, setCustomWords] = useState<any[]>([]);
@@ -117,7 +119,9 @@ export default function LearnView() {
   }, []);
 
   const allItems = useMemo(() => [
-    ...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten, ...RAW_DATA.words, ...customWords
+    ...RAW_DATA.basic, ...RAW_DATA.dakuten, ...RAW_DATA.handakuten, 
+    ...RAW_DATA.h_basic, ...RAW_DATA.h_dakuten, ...RAW_DATA.h_handakuten,
+    ...RAW_DATA.words, ...customWords
   ], [customWords]);
 
   const displayedItems = useMemo(() => {
@@ -129,11 +133,21 @@ export default function LearnView() {
         (i.m && i.m.toLowerCase().includes(lowerSearch))
       );
     }
-    if (filter === 'words') return [...RAW_DATA.words, ...customWords];
-    return RAW_DATA[filter as keyof typeof RAW_DATA] || [];
-  }, [filter, search, allItems, customWords]);
+    if (mainCat === 'words') return [...RAW_DATA.words, ...customWords];
+    if (mainCat === 'hiragana') {
+      if (subCat === 'basic') return RAW_DATA.h_basic;
+      if (subCat === 'dakuten') return RAW_DATA.h_dakuten;
+      if (subCat === 'handakuten') return RAW_DATA.h_handakuten;
+    }
+    if (mainCat === 'katakana') {
+      if (subCat === 'basic') return RAW_DATA.basic;
+      if (subCat === 'dakuten') return RAW_DATA.dakuten;
+      if (subCat === 'handakuten') return RAW_DATA.handakuten;
+    }
+    return [];
+  }, [mainCat, subCat, search, allItems, customWords]);
 
-  const isWordMode = filter === 'words' || (search && displayedItems.length > 0 && displayedItems[0].m);
+  const isWordMode = mainCat === 'words' || (search && displayedItems.length > 0 && displayedItems[0].m);
 
   const openModal = (item: any) => {
     playClick();
@@ -149,17 +163,40 @@ export default function LearnView() {
     setSelectedItem(null);
   };
 
-  const selectCategory = (cat: FilterType) => {
+  const selectMainCategory = (cat: MainCategory) => {
     playClick();
-    setFilter(cat);
+    setMainCat(cat);
     setSearch('');
+    if (cat === 'words') {
+      setViewMode('grid');
+    } else {
+      setViewMode('sub');
+    }
+  };
+
+  const selectSubCategory = (cat: SubCategory) => {
+    playClick();
+    setSubCat(cat);
     setViewMode('grid');
+  };
+
+  const goBack = () => {
+    playClick();
+    if (viewMode === 'grid' && mainCat !== 'words') {
+      setViewMode('sub');
+    } else {
+      setViewMode('main');
+      setMainCat(null);
+      setSubCat(null);
+    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     if (e.target.value) {
       setViewMode('grid');
+    } else {
+      setViewMode('main');
     }
   };
 
@@ -172,64 +209,37 @@ export default function LearnView() {
             type="text" 
             value={search}
             onChange={handleSearch}
-            placeholder="Search vocabulary..." 
+            placeholder="Search vocabulary or kana..." 
             className="w-full bg-[#1A1D24]/80 text-zinc-100 text-sm rounded-full py-2.5 pl-10 pr-4 border border-white/5 focus:bg-[#222630] focus:outline-none transition-colors shadow-sm"
           />
         </div>
-        
-        {viewMode === 'grid' && !search && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {(['basic', 'dakuten', 'handakuten', 'words'] as FilterType[]).map(f => (
-              <button 
-                key={f}
-                onClick={() => { playClick(); setFilter(f); setSearch(''); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 ${
-                  filter === f ? 'bg-cyan-500/20 text-cyan-400' : 'bg-[#1A1D24] text-zinc-400 hover:bg-[#222630]'
-                }`}
-              >
-                {f === 'basic' ? 'Basic' : f === 'dakuten' ? 'Dakuten (゛)' : f === 'handakuten' ? 'Handakuten (゜)' : 'Vocabulary'}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
-      {viewMode === 'categories' && !search && (
+      {viewMode === 'main' && !search && (
         <div className="flex flex-col gap-2.5 mt-2 px-4 pb-6">
-          <button onClick={() => selectCategory('basic')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+          <button onClick={() => selectMainCategory('hiragana')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-400 shrink-0">
+              <span className="text-xl font-bold font-jp">あ</span>
+            </div>
+            <div className="text-left flex-1">
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Hiragana</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">Native Japanese words</p>
+            </div>
+            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
+          </button>
+
+          <button onClick={() => selectMainCategory('katakana')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
             <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
               <span className="text-xl font-bold font-jp">ア</span>
             </div>
             <div className="text-left flex-1">
-              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Basic Katakana</h3>
-              <p className="text-[12px] text-zinc-500 font-medium">The 46 fundamental characters</p>
+              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Katakana</h3>
+              <p className="text-[12px] text-zinc-500 font-medium">Foreign loan words</p>
             </div>
             <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
           </button>
 
-          <button onClick={() => selectCategory('dakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
-              <span className="text-xl font-bold font-jp">ガ</span>
-            </div>
-            <div className="text-left flex-1">
-              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Dakuten (゛)</h3>
-              <p className="text-[12px] text-zinc-500 font-medium">Voiced sounds (Ga, Gi, Gu...)</p>
-            </div>
-            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
-          </button>
-
-          <button onClick={() => selectCategory('handakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
-              <span className="text-xl font-bold font-jp">パ</span>
-            </div>
-            <div className="text-left flex-1">
-              <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Handakuten (゜)</h3>
-              <p className="text-[12px] text-zinc-500 font-medium">P-sounds (Pa, Pi, Pu...)</p>
-            </div>
-            <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
-          </button>
-
-          <button onClick={() => selectCategory('words')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+          <button onClick={() => selectMainCategory('words')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
             <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
               <Languages className="w-5 h-5" />
             </div>
@@ -242,14 +252,62 @@ export default function LearnView() {
         </div>
       )}
 
+      {viewMode === 'sub' && !search && (
+        <div className="flex flex-col h-full px-4">
+          <div className="flex items-center gap-3 mb-4 mt-2">
+            <button onClick={goBack} className="w-8 h-8 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95">
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <span className="text-sm font-bold text-cyan-400 capitalize">
+              {mainCat}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pb-6">
+            <button onClick={() => selectSubCategory('basic')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+                <span className="text-xl font-bold font-jp">{mainCat === 'hiragana' ? 'あ' : 'ア'}</span>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Basic {mainCat === 'hiragana' ? 'Hiragana' : 'Katakana'}</h3>
+                <p className="text-[12px] text-zinc-500 font-medium">The 46 fundamental characters</p>
+              </div>
+              <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
+            </button>
+
+            <button onClick={() => selectSubCategory('dakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
+                <span className="text-xl font-bold font-jp">{mainCat === 'hiragana' ? 'が' : 'ガ'}</span>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Dakuten (゛)</h3>
+                <p className="text-[12px] text-zinc-500 font-medium">Voiced sounds (Ga, Gi, Gu...)</p>
+              </div>
+              <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
+            </button>
+
+            <button onClick={() => selectSubCategory('handakuten')} className="w-full p-4 bg-[#1A1D24] rounded-[24px] flex items-center gap-4 group active:scale-[0.98] transition-all shadow-sm">
+              <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
+                <span className="text-xl font-bold font-jp">{mainCat === 'hiragana' ? 'ぱ' : 'パ'}</span>
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="text-[15px] font-bold text-zinc-100 mb-0.5">Handakuten (゜)</h3>
+                <p className="text-[12px] text-zinc-500 font-medium">P-sounds (Pa, Pi, Pu...)</p>
+              </div>
+              <ChevronRight className="text-zinc-600 w-4 h-4 shrink-0" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {(viewMode === 'grid' || search) && (
         <div className="flex flex-col h-full px-4">
           <div className="flex items-center gap-3 mb-4 mt-2">
-            <button onClick={() => { setViewMode('categories'); setSearch(''); }} className="w-8 h-8 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95">
+            <button onClick={goBack} className="w-8 h-8 bg-[#1A1D24] text-zinc-400 rounded-full flex items-center justify-center hover:bg-[#222630] hover:text-zinc-200 transition-colors active:scale-95">
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <span className="text-sm font-bold text-cyan-400">
-              {search ? 'Search Results' : filter === 'basic' ? 'Basic Katakana' : filter === 'dakuten' ? 'Dakuten' : filter === 'handakuten' ? 'Handakuten' : 'Vocabulary'}
+            <span className="text-sm font-bold text-cyan-400 capitalize">
+              {search ? 'Search Results' : subCat ? `${subCat} ${mainCat}` : mainCat}
             </span>
           </div>
 
@@ -321,7 +379,7 @@ export default function LearnView() {
                 <p className="text-zinc-100 font-bold text-lg">{selectedItem.m || selectedItem.r.toUpperCase()}</p>
                 <button onClick={() => speak(selectedItem.c)} className="text-cyan-400 p-1.5 bg-cyan-500/10 rounded-full active:scale-90 transition-transform"><Volume2 className="w-4 h-4" /></button>
               </div>
-              <p className="text-xs text-zinc-500 font-medium mb-5">{lang === 'ne' ? selectedItem.n : (selectedItem.m ? '' : 'Katakana Letter')}</p>
+              <p className="text-xs text-zinc-500 font-medium mb-5">{lang === 'ne' ? selectedItem.n : (selectedItem.m ? '' : 'Kana Letter')}</p>
               
               <button 
                 onClick={() => setShowDrawing(!showDrawing)} 

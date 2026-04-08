@@ -20,6 +20,27 @@ export const RAW_DATA = {
   handakuten: [
     {id:'pa',c:'パ',r:'pa'}, {id:'pi',c:'ピ',r:'pi'}, {id:'pu',c:'プ',r:'pu'}, {id:'pe',c:'ペ',r:'pe'}, {id:'po',c:'ポ',r:'po'}
   ],
+  h_basic: [
+    {id:'h_a',c:'あ',r:'a'}, {id:'h_i',c:'い',r:'i'}, {id:'h_u',c:'う',r:'u'}, {id:'h_e',c:'え',r:'e'}, {id:'h_o',c:'お',r:'o'},
+    {id:'h_ka',c:'か',r:'ka'}, {id:'h_ki',c:'き',r:'ki'}, {id:'h_ku',c:'く',r:'ku'}, {id:'h_ke',c:'け',r:'ke'}, {id:'h_ko',c:'こ',r:'ko'},
+    {id:'h_sa',c:'さ',r:'sa'}, {id:'h_shi',c:'し',r:'shi'}, {id:'h_su',c:'す',r:'su'}, {id:'h_se',c:'せ',r:'se'}, {id:'h_so',c:'そ',r:'so'},
+    {id:'h_ta',c:'た',r:'ta'}, {id:'h_chi',c:'ち',r:'chi'}, {id:'h_tsu',c:'つ',r:'tsu'}, {id:'h_te',c:'て',r:'te'}, {id:'h_to',c:'と',r:'to'},
+    {id:'h_na',c:'な',r:'na'}, {id:'h_ni',c:'に',r:'ni'}, {id:'h_nu',c:'ぬ',r:'nu'}, {id:'h_ne',c:'ね',r:'ne'}, {id:'h_no',c:'の',r:'no'},
+    {id:'h_ha',c:'は',r:'ha'}, {id:'h_hi',c:'ひ',r:'hi'}, {id:'h_fu',c:'ふ',r:'fu'}, {id:'h_he',c:'へ',r:'he'}, {id:'h_ho',c:'ほ',r:'ho'},
+    {id:'h_ma',c:'ま',r:'ma'}, {id:'h_mi',c:'み',r:'mi'}, {id:'h_mu',c:'む',r:'mu'}, {id:'h_me',c:'め',r:'me'}, {id:'h_mo',c:'も',r:'mo'},
+    {id:'h_ya',c:'や',r:'ya'}, {id:'h_empty_yi',c:'',r:'',empty:true}, {id:'h_yu',c:'ゆ',r:'yu'}, {id:'h_empty_ye',c:'',r:'',empty:true}, {id:'h_yo',c:'よ',r:'yo'},
+    {id:'h_ra',c:'ら',r:'ra'}, {id:'h_ri',c:'り',r:'ri'}, {id:'h_ru',c:'る',r:'ru'}, {id:'h_re',c:'れ',r:'re'}, {id:'h_ro',c:'ろ',r:'ro'},
+    {id:'h_wa',c:'わ',r:'wa'}, {id:'h_empty_wi',c:'',r:'',empty:true}, {id:'h_wo',c:'を',r:'o'}, {id:'h_empty_we',c:'',r:'',empty:true}, {id:'h_n',c:'ん',r:'n'}
+  ],
+  h_dakuten: [
+    {id:'h_ga',c:'が',r:'ga'}, {id:'h_gi',c:'ぎ',r:'gi'}, {id:'h_gu',c:'ぐ',r:'gu'}, {id:'h_ge',c:'げ',r:'ge'}, {id:'h_go',c:'ご',r:'go'},
+    {id:'h_za',c:'ざ',r:'za'}, {id:'h_ji',c:'じ',r:'ji'}, {id:'h_zu',c:'ず',r:'zu'}, {id:'h_ze',c:'ぜ',r:'ze'}, {id:'h_zo',c:'ぞ',r:'zo'},
+    {id:'h_da',c:'だ',r:'da'}, {id:'h_dji',c:'ぢ',r:'ji'}, {id:'h_dzu',c:'づ',r:'zu'}, {id:'h_de',c:'で',r:'de'}, {id:'h_do',c:'ど',r:'do'},
+    {id:'h_ba',c:'ば',r:'ba'}, {id:'h_bi',c:'び',r:'bi'}, {id:'h_bu',c:'ぶ',r:'bu'}, {id:'h_be',c:'べ',r:'be'}, {id:'h_bo',c:'ぼ',r:'bo'}
+  ],
+  h_handakuten: [
+    {id:'h_pa',c:'ぱ',r:'pa'}, {id:'h_pi',c:'ぴ',r:'pi'}, {id:'h_pu',c:'ぷ',r:'pu'}, {id:'h_pe',c:'ぺ',r:'pe'}, {id:'h_po',c:'ぽ',r:'po'}
+  ],
   words: [
     {id:'w1',c:'カメラ',r:'kamera',m:'Camera',n:'क्यामेरा'}, {id:'w2',c:'ホテル',r:'hoteru',m:'Hotel',n:'होटल'},
     {id:'w3',c:'タクシー',r:'takushii',m:'Taxi',n:'ट्याक्सी'}, {id:'w4',c:'バス',r:'basu',m:'Bus',n:'बस'},
