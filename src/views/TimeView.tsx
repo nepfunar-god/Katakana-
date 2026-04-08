@@ -110,21 +110,44 @@ export default function TimeView() {
 
     let opts = [correctOpt];
 
+    const formatOpt = (hVal: number, mVal: number, isPmVal: boolean) => {
+      const perR = isPmVal ? "gogo" : "gozen";
+      const perH = isPmVal ? "ごご" : "ごぜん";
+      const perK = isPmVal ? "午後" : "午前";
+      const hD = TIME_DATA.hours[hVal as keyof typeof TIME_DATA.hours];
+      const mD = getMinStr(mVal);
+      
+      if (formatType === 0) return reqAmPm ? `${perR} ${hD.r} ${mD.r}`.trim() : `${hD.r} ${mD.r}`.trim();
+      if (formatType === 1) return reqAmPm ? `${perH}${hD.h}${mD.h}` : `${hD.h}${mD.h}`;
+      return reqAmPm ? `${perK}${hD.k}${mD.k}` : `${hD.k}${mD.k}`;
+    };
+
+    const addOpt = (hVal: number, mVal: number, isPmVal: boolean) => {
+      let validH = hVal;
+      if (validH < 1) validH = 12;
+      if (validH > 12) validH = 1;
+      let validM = mVal;
+      if (validM < 0) validM += 60;
+      if (validM >= 60) validM -= 60;
+
+      const s = formatOpt(validH, validM, isPmVal);
+      if (!opts.includes(s) && !qData.valids.includes(s)) opts.push(s);
+    };
+
+    if (reqAmPm) addOpt(h, m, !isPm); // Wrong AM/PM
+    addOpt(h, m + 5, isPm); // Close minute
+    addOpt(h, m - 5, isPm); // Close minute
+    addOpt(h + 1, m, isPm); // Close hour
+    addOpt(h - 1, m, isPm); // Close hour
+    if (m === 30) addOpt(h, 0, isPm); // Confuse half past with o'clock
+
     while (opts.length < 4) {
       const rh = Math.floor(Math.random() * 12) + 1, rm = Math.floor(Math.random() * 60);
-      const rper = Math.random() < 0.5 ? "gogo" : "gozen";
-      const rperH = rper === "gogo" ? "ごご" : "ごぜん";
-      const rperK = rper === "gogo" ? "午後" : "午前";
-      const rhD = TIME_DATA.hours[rh as keyof typeof TIME_DATA.hours];
-      const rmD = getMinStr(rm);
-      
-      let s = "";
-      if (formatType === 0) s = reqAmPm ? `${rper} ${rhD.r} ${rmD.r}`.trim() : `${rhD.r} ${rmD.r}`.trim();
-      else if (formatType === 1) s = reqAmPm ? `${rperH}${rhD.h}${rmD.h}` : `${rhD.h}${rmD.h}`;
-      else s = reqAmPm ? `${rperK}${rhD.k}${rmD.k}` : `${rhD.k}${rmD.k}`;
-
-      if (!opts.includes(s) && !qData.valids.includes(s)) opts.push(s);
+      const rper = Math.random() < 0.5;
+      addOpt(rh, rm, rper);
     }
+    
+    opts = opts.slice(0, 4);
     setOptions(opts.sort(() => Math.random() - 0.5));
   };
 

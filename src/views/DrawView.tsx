@@ -1,12 +1,71 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { RefreshCw, Trash2, CheckCircle2, X, ChevronLeft, Folder } from 'lucide-react';
+import { RefreshCw, Trash2, CheckCircle2, X, ChevronLeft, Folder, Lightbulb } from 'lucide-react';
 import { RAW_DATA } from '../data';
 import { playClick } from '../utils/audio';
 
 type DrawMode = 'sequence' | 'alphabet';
 type AlphabetType = 'hiragana' | 'katakana' | null;
 type SubCategory = 'basic' | 'dakuten' | 'handakuten' | null;
+
+const AnimatedKana = ({ charCode, char }: { charCode: string, char: string }) => {
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    setSvgContent(null);
+    setError(false);
+    fetch(`https://raw.githubusercontent.com/KanjiVG/kanjivg/master/kanji/${charCode}.svg`)
+      .then(res => {
+        if (!res.ok) throw new Error('Not found');
+        return res.text();
+      })
+      .then(text => {
+        const cleaned = text.replace(/<g id="kvg:StrokeNumbers_[^>]+>[\s\S]*?<\/g>/, '');
+        setSvgContent(cleaned);
+      })
+      .catch(() => setError(true));
+  }, [charCode]);
+
+  if (error) {
+    return <span style={{ color: 'black', fontSize: '100px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>{char}</span>;
+  }
+
+  if (!svgContent) {
+    return <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>;
+  }
+
+  return (
+    <div className="relative w-full h-full flex items-center justify-center cursor-pointer" onClick={() => setKey(k => k + 1)}>
+      <style>{`
+        .animated-svg-${key} path {
+          stroke-dasharray: 400;
+          stroke-dashoffset: 400;
+          animation: drawStroke 0.8s ease-in-out forwards;
+          opacity: 0;
+        }
+        @keyframes drawStroke {
+          0% { stroke-dashoffset: 400; opacity: 1; }
+          100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+        .animated-svg-${key} path:nth-child(1) { animation-delay: 0s; }
+        .animated-svg-${key} path:nth-child(2) { animation-delay: 0.8s; }
+        .animated-svg-${key} path:nth-child(3) { animation-delay: 1.6s; }
+        .animated-svg-${key} path:nth-child(4) { animation-delay: 2.4s; }
+        .animated-svg-${key} path:nth-child(5) { animation-delay: 3.2s; }
+        .animated-svg-${key} path:nth-child(6) { animation-delay: 4.0s; }
+        .animated-svg-${key} svg { width: 100%; height: 100%; }
+      `}</style>
+      <div 
+        key={key}
+        className={`w-full h-full animated-svg-${key}`} 
+        dangerouslySetInnerHTML={{ __html: svgContent }} 
+      />
+      <div className="absolute bottom-1 right-1 text-[10px] text-zinc-500 bg-zinc-100/80 px-2 py-0.5 rounded font-bold">Tap to replay</div>
+    </div>
+  );
+};
 
 export default function DrawView() {
   const [drawMode, setDrawMode] = useState<DrawMode>('sequence');
@@ -23,6 +82,7 @@ export default function DrawView() {
   const [subCat, setSubCat] = useState<SubCategory>(null);
   const [userDrawings, setUserDrawings] = useState<Record<string, string>>({});
   const [activeKana, setActiveKana] = useState<{ item: any, type: 'h' | 'k', key: string } | null>(null);
+  const [infoKana, setInfoKana] = useState<{ item: any, type: 'h' | 'k', key: string } | null>(null);
   
   const activeCanvasRef = useRef<HTMLCanvasElement>(null);
   const hasDrawnRef = useRef(false);
@@ -299,6 +359,45 @@ export default function DrawView() {
       )}
 
       <AnimatePresence>
+        {infoKana && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[60] flex items-center justify-center p-4" onClick={() => setInfoKana(null)}>
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} 
+              animate={{ scale: 1, opacity: 1, y: 0 }} 
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-[#1A1D24] w-full max-w-sm rounded-[28px] p-6 shadow-2xl flex flex-col items-center"
+            >
+              <div className="w-full flex justify-between items-start mb-4">
+                <span className="text-2xl font-black text-white uppercase tracking-widest">{infoKana.item.r}</span>
+                <button onClick={() => setInfoKana(null)} className="w-8 h-8 rounded-full bg-[#222630] text-zinc-300 flex items-center justify-center hover:bg-[#2A2E38] transition-colors active:scale-90">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="w-48 h-48 bg-white rounded-2xl mb-6 p-2 flex items-center justify-center shadow-inner relative">
+                 <AnimatedKana charCode={infoKana.item.c.charCodeAt(0).toString(16).padStart(5, '0')} char={infoKana.item.c} />
+              </div>
+
+              <div className="text-center text-zinc-400 text-sm font-medium mb-6">
+                Watch the animation to learn how to draw <span className="text-zinc-200 font-bold">{infoKana.item.c}</span> correctly.
+              </div>
+
+              <button 
+                onClick={() => {
+                  playClick();
+                  setInfoKana(null);
+                }}
+                className="w-full py-4 bg-zinc-800 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-700 active:scale-95 transition-all shadow-md"
+              >
+                Close Hint
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {activeKana && (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} 
@@ -310,9 +409,14 @@ export default function DrawView() {
               <div className="flex items-center gap-4">
                 <span className="text-2xl font-black text-white uppercase tracking-widest pl-2">{activeKana.item.r}</span>
               </div>
-              <button onClick={() => clearCanvas(true)} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
-                <RefreshCw className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => { playClick(); setInfoKana(activeKana); }} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-yellow-400 hover:text-yellow-300 transition-colors border border-yellow-400/20">
+                  <Lightbulb className="w-5 h-5" />
+                </button>
+                <button onClick={() => clearCanvas(true)} className="w-10 h-10 bg-[#1A1D24] rounded-full flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+                  <RefreshCw className="w-5 h-5" />
+                </button>
+              </div>
             </div>
             
             <div className="flex-1 relative bg-[#1A1D24] m-4 rounded-2xl overflow-hidden border border-white/10 touch-none">

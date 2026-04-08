@@ -149,33 +149,54 @@ export default function DateView() {
 
     let opts = [correctOpt];
     
+    const formatOpt = (mVal: number, dVal: number, yVal: number) => {
+      const mStr = DATE_DATA.months[mVal];
+      const mH = DATE_DATA.monthsH[mVal];
+      const mK = DATE_DATA.monthsK[mVal];
+      const dObj = getDayStr(dVal);
+      const yObj = getYearStr(yVal);
+      
+      const isYMD = qData.display.length > 5;
+      
+      if(isYMD) {
+        if (formatType === 0) return `${yObj.r} ${mStr} ${dObj.r}`.replace(/\s+/g, ' ').trim();
+        if (formatType === 1) return `${yObj.h}${mH}${dObj.h}`;
+        return `${yObj.k}${mK}${dObj.k}`;
+      } else {
+        if (formatType === 0) return `${mStr} ${dObj.r}`.replace(/\s+/g, ' ').trim();
+        if (formatType === 1) return `${mH}${dObj.h}`;
+        return `${mK}${dObj.k}`;
+      }
+    };
+
+    const addOpt = (mVal: number, dVal: number, yVal: number) => {
+      let validM = mVal;
+      if (validM < 0) validM = 11;
+      if (validM > 11) validM = 0;
+      let validD = dVal;
+      if (validD < 1) validD = 31;
+      if (validD > 31) validD = 1;
+
+      const s = formatOpt(validM, validD, yVal);
+      if(!opts.includes(s) && s !== correctOpt && !qData.valids.includes(s)) opts.push(s);
+    };
+
+    // Confusing options
+    addOpt(m, d + 1, y); // Close day
+    addOpt(m, d - 1, y); // Close day
+    addOpt(m + 1, d, y); // Close month
+    addOpt(m - 1, d, y); // Close month
+    if (d < 20) addOpt(m, d + 10, y); // Similar sounding day (e.g. 4th vs 14th)
+    if (d > 10) addOpt(m, d - 10, y);
+
     while(opts.length < 4) {
       const rm = Math.floor(Math.random() * 12);
       const rd = Math.floor(Math.random() * 30) + 1;
       const ry = 2020 + Math.floor(Math.random() * 10);
-      
-      const rmStr = DATE_DATA.months[rm];
-      const rmH = DATE_DATA.monthsH[rm];
-      const rmK = DATE_DATA.monthsK[rm];
-      const rdObj = getDayStr(rd);
-      const ryObj = getYearStr(ry);
-      
-      let s = "";
-      const isYMD = qData.display.length > 5;
-      
-      if(isYMD) {
-        if (formatType === 0) s = `${ryObj.r} ${rmStr} ${rdObj.r}`;
-        else if (formatType === 1) s = `${ryObj.h}${rmH}${rdObj.h}`;
-        else s = `${ryObj.k}${rmK}${rdObj.k}`;
-      } else {
-        if (formatType === 0) s = `${rmStr} ${rdObj.r}`;
-        else if (formatType === 1) s = `${rmH}${rdObj.h}`;
-        else s = `${rmK}${rdObj.k}`;
-      }
-          
-      s = s.replace(/\s+/g, ' ').trim();
-      if(!opts.includes(s) && s !== correctOpt) opts.push(s);
+      addOpt(rm, rd, ry);
     }
+    
+    opts = opts.slice(0, 4);
     setOptions(opts.sort(() => Math.random() - 0.5));
   };
 
